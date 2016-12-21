@@ -83,7 +83,7 @@ do
           fi
 
           printf "\n======================================================================\n"
-          printf "\n${TEST}-${DIM}D-${COMP_NAME}${OMP_NAME}${MPI_NAME}\n"
+          printf "${TEST}-${DIM}D-${COMP_NAME}${OMP_NAME}${MPI_NAME}\n\n"
          
           cd ${PELE_ROOT}/PeleC/Exec/${TEST}
 
