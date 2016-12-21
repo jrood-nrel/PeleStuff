@@ -1,7 +1,7 @@
 #!/bin/bash -l
 
 #PBS -N profile_pele
-#PBS -l nodes=1:ppn=24,walltime=4:00:00
+#PBS -l nodes=1:ppn=24,walltime=1:00:00
 #PBS -A ExaCT
 #PBS -q short
 #PBS -o $PBS_JOBNAME.log
@@ -10,11 +10,11 @@
 
 set -e
 
-PELE_ROOT=${HOME}/combustion
-
 cd ${HOME}
 
-source /nopt/intel/16.0/vtune_amplifier_xe/amplxe-vars.sh
+PELE_ROOT=${HOME}/combustion
+
+source /nopt/intel/16.0/vtune_amplifier_xe/amplxe-vars.sh &> /dev/null
 
 cd ${PELE_ROOT}/PeleC
 git checkout development
@@ -25,6 +25,8 @@ git pull
 cd ${PELE_ROOT}/BoxLib
 git checkout development
 git pull
+
+printf "\nCycling through tests...\n"
 
 for TEST in TG
 do
@@ -65,6 +67,7 @@ do
           if [ ${MPI} = 'TRUE' ]
           then
             MPI_NAME=-mpi
+            MPI_EXE=.MPI
           else
             MPI_NAME=
           fi
@@ -72,30 +75,37 @@ do
           if [ ${OMP} = 'TRUE' ]
           then
             OMP_NAME=-omp
+            OMP_EXE=.OMP
           else
             OMP_NAME=-serial
           fi
 
-          echo "${TEST}-${DIM}D-${COMP_NAME}${OMP_NAME}${MPI_NAME}"
+          printf "\n======================================================================\n"
+          printf "\n${TEST}-${DIM}D-${COMP_NAME}${OMP_NAME}${MPI_NAME}\n"
          
           cd ${PELE_ROOT}/PeleC/Exec/${TEST}
-          sed "s/^DIM.*/DIM        = ${DIM}/g; s/^COMP.*/COMP       = ${COMP_COMMAND}/g; s/^FCOMP.*/FCOMP      = ${FCOMP_COMMAND}/g; s/^USE_MPI.*/USE_MPI    = ${MPI}/g; s/^USE_OMP.*/USE_OMP    = ${OMP}/g" ${PELE_ROOT}/PeleC/Exec/${TEST}/GNUmakefile
+
+          sed -i "s/^DIM.*/DIM        = ${DIM}/g; s/^COMP.*/COMP       = ${COMP_COMMAND}/g; s/^FCOMP.*/FCOMP      = ${FCOMP_COMMAND}/g; s/^USE_MPI.*/USE_MPI    = ${MPI}/g; s/^USE_OMP.*/USE_OMP    = ${OMP}/g" ${PELE_ROOT}/PeleC/Exec/${TEST}/GNUmakefile
           
-          echo "Make..."
-          make -j 16 2>&1 > /dev/null
-          echo "Done."
+          printf "Make...\n"
+          make -j 16 &> /dev/null
+          printf "Done.\n\n"
           
-          echo "Run..."
-          amplxe-cl -collect hotspots -result-dir r001hs-${TEST}-${DIM}d-${COMP_NAME}${OMP_NAME}${MPI_NAME} ./PeleC${DIM}d.${COMP_NAME}.ex inputs_2d 2>&1 > /dev/null
-          echo "Done."
-          amplxe-cl -R hotspots -result-dir r001hs-${TEST}-${DIM}d-${COMP_NAME}${OMP_NAME}${MPI_NAME} -format=csv 2>&1 > r001hs-${TEST}-${DIM}d-${COMP_NAME}${OMP_NAME}${MPI_NAME}.txt
+          printf "Run...\n"
+          ls -alh ${PELE_ROOT}/PeleC/Exec/${TEST} | grep PeleC
+          printf "PeleC${DIM}d.${COMP_NAME}${MPI_EXE}${OMP_EXE}.ex"
+          #amplxe-cl -collect hotspots -result-dir r001hs-${TEST}-${DIM}d-${COMP_NAME}${OMP_NAME}${MPI_NAME} ./PeleC${DIM}d.${COMP_NAME}${MPI_EXE}${OMP_EXE}.ex inputs_${DIM}d &> /dev/null
+          printf "Done.\n\n"
+          #amplxe-cl -R hotspots -result-dir r001hs-${TEST}-${DIM}d-${COMP_NAME}${OMP_NAME}${MPI_NAME} -format=csv 2>&1 > r001hs-${TEST}-${DIM}d-${COMP_NAME}${OMP_NAME}${MPI_NAME}.txt
           
-          rm -r chk*
-          rm -r plt*
+          printf "Clean...\n"
+          {
+          #rm -r chk*
+          #rm -r plt*
           #rm -r r001hs-${TEST}-${DIM}d-${COMP_NAME}${OMP_NAME}${MPI_NAME}
           make clean
-
-          echo "======================================================================"
+          } &> /dev/null
+          printf "Done.\n\n"
 
         done
       done
