@@ -1,7 +1,7 @@
 #!/bin/bash -l
 
 #PBS -N profile_pele
-#PBS -l nodes=1:ppn=24,walltime=1:00:00
+#PBS -l nodes=1:ppn=24,walltime=4:00:00
 #PBS -A ExaCT
 #PBS -q short
 #PBS -o $PBS_JOBNAME.log
@@ -70,6 +70,7 @@ do
             MPI_EXE=.MPI
           else
             MPI_NAME=
+            MPI_EXE=
           fi
 
           if [ ${OMP} = 'TRUE' ]
@@ -77,7 +78,8 @@ do
             OMP_NAME=-omp
             OMP_EXE=.OMP
           else
-            OMP_NAME=-serial
+            OMP_NAME=
+            OMP_EXE=
           fi
 
           printf "\n======================================================================\n"
@@ -93,7 +95,7 @@ do
           
           printf "Run...\n"
           ls -alh ${PELE_ROOT}/PeleC/Exec/${TEST} | grep PeleC
-          printf "PeleC${DIM}d.${COMP_NAME}${MPI_EXE}${OMP_EXE}.ex"
+          printf "PeleC${DIM}d.${COMP_NAME}${MPI_EXE}${OMP_EXE}.ex\n"
           #amplxe-cl -collect hotspots -result-dir r001hs-${TEST}-${DIM}d-${COMP_NAME}${OMP_NAME}${MPI_NAME} ./PeleC${DIM}d.${COMP_NAME}${MPI_EXE}${OMP_EXE}.ex inputs_${DIM}d &> /dev/null
           printf "Done.\n\n"
           #amplxe-cl -R hotspots -result-dir r001hs-${TEST}-${DIM}d-${COMP_NAME}${OMP_NAME}${MPI_NAME} -format=csv 2>&1 > r001hs-${TEST}-${DIM}d-${COMP_NAME}${OMP_NAME}${MPI_NAME}.txt
