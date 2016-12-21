@@ -26,7 +26,7 @@ cd ${PELE_ROOT}/BoxLib
 git checkout development
 git pull
 
-printf "\nCycling through tests...\n"
+printf "\nCycling through tests...\n\n"
 
 for TEST in TG
 do
@@ -82,7 +82,7 @@ do
             OMP_EXE=
           fi
 
-          printf "\n======================================================================\n"
+          printf "======================================================================\n"
           printf "${TEST}-${DIM}D-${COMP_NAME}${OMP_NAME}${MPI_NAME}\n\n"
          
           cd ${PELE_ROOT}/PeleC/Exec/${TEST}
