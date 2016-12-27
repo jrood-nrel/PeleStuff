@@ -39,8 +39,7 @@ do
       do
         for OMP in FALSE TRUE
         do
-          if [ ${COMP_NAME} = 'gnu' ]
-          then
+          if [ ${COMP_NAME} = 'gnu' ]; then
             #GCC environment
             {
             module purge
@@ -64,25 +63,30 @@ do
             FCOMP_COMMAND=ifort
           fi 
 
-          if [ ${MPI} = 'TRUE' ]
-          then
+          if [ ${MPI} = 'TRUE' ]; then
             MPI_NAME=-mpi
             MPI_EXE=.MPI
-            MPI_CMD='mpirun -np 2'
           else
             MPI_NAME=
             MPI_EXE=
             MPI_CMD=
           fi
 
-          if [ ${OMP} = 'TRUE' ]
-          then
+          if [ ${OMP} = 'TRUE' ]; then
             OMP_NAME=-omp
             OMP_EXE=.OMP
             export OMP_NUM_THREADS=24
           else
             OMP_NAME=
             OMP_EXE=
+          fi
+
+          if [ ${MPI} = 'TRUE' &&  ${OMP} = 'TRUE' ]; then
+            MPI_CMD='mpirun -np 2 --map-by ppr:1:node --report-bindings'
+          elif [ ${MPI} = 'TRUE' &&  ${OMP} = 'FALSE' ]; then
+            MPI_CMD='mpirun -np 48 --map-by ppr:24:node --report-bindings'
+          else
+            MPI_CMD=
           fi
 
           printf "======================================================================\n"
