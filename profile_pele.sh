@@ -77,6 +77,7 @@ do
           then
             OMP_NAME=-omp
             OMP_EXE=.OMP
+            export OMP_NUM_THREADS=24
           else
             OMP_NAME=
             OMP_EXE=
@@ -90,7 +91,7 @@ do
           sed -i "s/^DIM.*/DIM        = ${DIM}/g; s/^COMP.*/COMP       = ${COMP_COMMAND}/g; s/^FCOMP.*/FCOMP      = ${FCOMP_COMMAND}/g; s/^USE_MPI.*/USE_MPI    = ${MPI}/g; s/^USE_OMP.*/USE_OMP    = ${OMP}/g" ${PELE_ROOT}/PeleC/Exec/${TEST}/GNUmakefile
           
           printf "Make...\n"
-          make -j 16 &> /dev/null
+          make -j 24 &> /dev/null
           printf "Done.\n\n"
           
           printf "Run...\n"
