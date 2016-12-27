@@ -94,16 +94,14 @@ do
           printf "Done.\n\n"
           
           printf "Run...\n"
-          ls -alh ${PELE_ROOT}/PeleC/Exec/${TEST} | grep PeleC
-          printf "PeleC${DIM}d.${COMP_NAME}${MPI_EXE}${OMP_EXE}.ex\n"
-          #amplxe-cl -collect hotspots -result-dir r001hs-${TEST}-${DIM}d-${COMP_NAME}${OMP_NAME}${MPI_NAME} ./PeleC${DIM}d.${COMP_NAME}${MPI_EXE}${OMP_EXE}.ex inputs_${DIM}d &> /dev/null
+          amplxe-cl -collect hotspots -result-dir r001hs-${TEST}-${DIM}d-${COMP_NAME}${OMP_NAME}${MPI_NAME} ./PeleC${DIM}d.${COMP_NAME}${MPI_EXE}${OMP_EXE}.ex inputs_${DIM}d &> /dev/null
           printf "Done.\n\n"
-          #amplxe-cl -R hotspots -result-dir r001hs-${TEST}-${DIM}d-${COMP_NAME}${OMP_NAME}${MPI_NAME} -format=csv 2>&1 > r001hs-${TEST}-${DIM}d-${COMP_NAME}${OMP_NAME}${MPI_NAME}.txt
+          amplxe-cl -R hotspots -result-dir r001hs-${TEST}-${DIM}d-${COMP_NAME}${OMP_NAME}${MPI_NAME} -format=csv 2>&1 > r001hs-${TEST}-${DIM}d-${COMP_NAME}${OMP_NAME}${MPI_NAME}.txt
           
           printf "Clean...\n"
           {
-          #rm -r chk*
-          #rm -r plt*
+          rm -r chk*
+          rm -r plt*
           #rm -r r001hs-${TEST}-${DIM}d-${COMP_NAME}${OMP_NAME}${MPI_NAME}
           make clean
           } &> /dev/null
