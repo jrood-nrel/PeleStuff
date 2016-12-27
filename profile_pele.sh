@@ -68,9 +68,11 @@ do
           then
             MPI_NAME=-mpi
             MPI_EXE=.MPI
+            MPI_CMD='mpirun -np 2'
           else
             MPI_NAME=
             MPI_EXE=
+            MPI_CMD=
           fi
 
           if [ ${OMP} = 'TRUE' ]
@@ -95,9 +97,11 @@ do
           printf "Done.\n\n"
           
           printf "Run...\n"
-          amplxe-cl -collect hotspots -result-dir r001hs-${TEST}-${DIM}d-${COMP_NAME}${OMP_NAME}${MPI_NAME} ./PeleC${DIM}d.${COMP_NAME}${MPI_EXE}${OMP_EXE}.ex inputs_${DIM}d &> /dev/null
-          printf "Done.\n\n"
+          set -x
+          amplxe-cl -collect hotspots -result-dir r001hs-${TEST}-${DIM}d-${COMP_NAME}${OMP_NAME}${MPI_NAME} ${MPI_CMD} ./PeleC${DIM}d.${COMP_NAME}${MPI_EXE}${OMP_EXE}.ex inputs_${DIM}d &> /dev/null
           amplxe-cl -R hotspots -result-dir r001hs-${TEST}-${DIM}d-${COMP_NAME}${OMP_NAME}${MPI_NAME} -format=csv 2>&1 > r001hs-${TEST}-${DIM}d-${COMP_NAME}${OMP_NAME}${MPI_NAME}.txt
+          unset -x
+          printf "Done.\n\n"
           
           printf "Clean...\n"
           {
