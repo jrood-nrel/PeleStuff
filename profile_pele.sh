@@ -26,6 +26,8 @@ cd ${PELE_ROOT}/BoxLib
 git checkout development
 git pull
 
+ulimit -s 10240
+
 printf "\nCycling through tests...\n\n"
 
 for TEST in TG
@@ -82,7 +84,7 @@ do
           fi
 
           if [[ ${MPI} == 'TRUE' ]] && [[ ${OMP} == 'TRUE' ]]; then
-            MPI_CMD='mpirun -np 2 --map-by ppr:1:node --report-bindings'
+            MPI_CMD='mpirun -x OMP_NUM_THREADS -np 2 --map-by ppr:1:node --report-bindings'
           elif [[ ${MPI} == 'TRUE' ]] && [[ ${OMP} == 'FALSE' ]]; then
             MPI_CMD='mpirun -np 48 --map-by ppr:24:node --report-bindings'
           else
@@ -101,6 +103,7 @@ do
           printf "Done.\n\n"
           
           printf "Run...\n"
+          printf "OMP_NUM_THREADS: $OMP_NUM_THREADS"
           set -x
           amplxe-cl -collect hotspots -result-dir r001hs-${TEST}-${DIM}d-${COMP_NAME}${OMP_NAME}${MPI_NAME} ${MPI_CMD} ./PeleC${DIM}d.${COMP_NAME}${MPI_EXE}${OMP_EXE}.ex inputs_${DIM}d &> r001hs-${TEST}-${DIM}d-${COMP_NAME}${OMP_NAME}${MPI_NAME}.run.txt
           amplxe-cl -R hotspots -result-dir r001hs-${TEST}-${DIM}d-${COMP_NAME}${OMP_NAME}${MPI_NAME} -format=csv &> r001hs-${TEST}-${DIM}d-${COMP_NAME}${OMP_NAME}${MPI_NAME}.profile.txt
