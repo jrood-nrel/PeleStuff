@@ -35,11 +35,11 @@ do
     sed -i 's/^max_step.*/max_step = 4000/g' ${PELE_ROOT}/PeleC/Exec/${TEST}/inputs_${DIM}d
     for COMP_NAME in gnu intel
     do
-      for MPI in FALSE TRUE
+      for MPI in TRUE FALSE
       do
         for OMP in FALSE TRUE
         do
-          if [ ${COMP_NAME} = 'gnu' ]; then
+          if [ ${COMP_NAME} == 'gnu' ]; then
             #GCC environment
             {
             module purge
@@ -63,7 +63,7 @@ do
             FCOMP_COMMAND=ifort
           fi 
 
-          if [ ${MPI} = 'TRUE' ]; then
+          if [ ${MPI} == 'TRUE' ]; then
             MPI_NAME=-mpi
             MPI_EXE=.MPI
           else
@@ -72,7 +72,7 @@ do
             MPI_CMD=
           fi
 
-          if [ ${OMP} = 'TRUE' ]; then
+          if [ ${OMP} == 'TRUE' ]; then
             OMP_NAME=-omp
             OMP_EXE=.OMP
             export OMP_NUM_THREADS=24
@@ -81,9 +81,9 @@ do
             OMP_EXE=
           fi
 
-          if [ ${MPI} = 'TRUE' &&  ${OMP} = 'TRUE' ]; then
+          if [[ ${MPI} == 'TRUE' ]] && [[ ${OMP} == 'TRUE' ]]; then
             MPI_CMD='mpirun -np 2 --map-by ppr:1:node --report-bindings'
-          elif [ ${MPI} = 'TRUE' &&  ${OMP} = 'FALSE' ]; then
+          elif [[ ${MPI} == 'TRUE' ]] && [[ ${OMP} == 'FALSE' ]]; then
             MPI_CMD='mpirun -np 48 --map-by ppr:24:node --report-bindings'
           else
             MPI_CMD=
@@ -102,9 +102,9 @@ do
           
           printf "Run...\n"
           set -x
-          amplxe-cl -collect hotspots -result-dir r001hs-${TEST}-${DIM}d-${COMP_NAME}${OMP_NAME}${MPI_NAME} ${MPI_CMD} ./PeleC${DIM}d.${COMP_NAME}${MPI_EXE}${OMP_EXE}.ex inputs_${DIM}d &> /dev/null
-          amplxe-cl -R hotspots -result-dir r001hs-${TEST}-${DIM}d-${COMP_NAME}${OMP_NAME}${MPI_NAME} -format=csv 2>&1 > r001hs-${TEST}-${DIM}d-${COMP_NAME}${OMP_NAME}${MPI_NAME}.txt
-          unset -x
+          amplxe-cl -collect hotspots -result-dir r001hs-${TEST}-${DIM}d-${COMP_NAME}${OMP_NAME}${MPI_NAME} ${MPI_CMD} ./PeleC${DIM}d.${COMP_NAME}${MPI_EXE}${OMP_EXE}.ex inputs_${DIM}d &> r001hs-${TEST}-${DIM}d-${COMP_NAME}${OMP_NAME}${MPI_NAME}.run.txt
+          amplxe-cl -R hotspots -result-dir r001hs-${TEST}-${DIM}d-${COMP_NAME}${OMP_NAME}${MPI_NAME} -format=csv &> r001hs-${TEST}-${DIM}d-${COMP_NAME}${OMP_NAME}${MPI_NAME}.profile.txt
+          set +x
           printf "Done.\n\n"
           
           printf "Clean...\n"
