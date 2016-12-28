@@ -37,9 +37,9 @@ do
     sed -i 's/^max_step.*/max_step = 4000/g' ${PELE_ROOT}/PeleC/Exec/${TEST}/inputs_${DIM}d
     for COMP_NAME in gnu intel
     do
-      for MPI in TRUE FALSE
+      for MPI in FALSE TRUE
       do
-        for OMP in FALSE TRUE
+        for OMP in TRUE FALSE
         do
           if [ ${COMP_NAME} == 'gnu' ]; then
             #GCC environment
@@ -81,6 +81,7 @@ do
           else
             OMP_NAME=
             OMP_EXE=
+            export OMP_NUM_THREADS=1
           fi
 
           if [[ ${MPI} == 'TRUE' ]] && [[ ${OMP} == 'TRUE' ]]; then
@@ -99,11 +100,11 @@ do
           sed -i "s/^DIM.*/DIM        = ${DIM}/g; s/^COMP.*/COMP       = ${COMP_COMMAND}/g; s/^FCOMP.*/FCOMP      = ${FCOMP_COMMAND}/g; s/^USE_MPI.*/USE_MPI    = ${MPI}/g; s/^USE_OMP.*/USE_OMP    = ${OMP}/g" ${PELE_ROOT}/PeleC/Exec/${TEST}/GNUmakefile
           
           printf "Make...\n"
-          make -j 24 &> /dev/null
+          make -j 24 &> r001hs-${TEST}-${DIM}d-${COMP_NAME}${OMP_NAME}${MPI_NAME}.make.txt
           printf "Done.\n\n"
           
           printf "Run...\n"
-          printf "OMP_NUM_THREADS: $OMP_NUM_THREADS"
+          printf "OMP_NUM_THREADS: $OMP_NUM_THREADS \n"
           set -x
           amplxe-cl -collect hotspots -result-dir r001hs-${TEST}-${DIM}d-${COMP_NAME}${OMP_NAME}${MPI_NAME} ${MPI_CMD} ./PeleC${DIM}d.${COMP_NAME}${MPI_EXE}${OMP_EXE}.ex inputs_${DIM}d &> r001hs-${TEST}-${DIM}d-${COMP_NAME}${OMP_NAME}${MPI_NAME}.run.txt
           amplxe-cl -R hotspots -result-dir r001hs-${TEST}-${DIM}d-${COMP_NAME}${OMP_NAME}${MPI_NAME} -format=csv &> r001hs-${TEST}-${DIM}d-${COMP_NAME}${OMP_NAME}${MPI_NAME}.profile.txt
