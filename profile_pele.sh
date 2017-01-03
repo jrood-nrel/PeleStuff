@@ -35,11 +35,11 @@ do
   for DIM in 2
   do
     sed -i 's/^max_step.*/max_step = 4000/g' ${PELE_ROOT}/PeleC/Exec/${TEST}/inputs_${DIM}d
-    for COMP_NAME in gnu intel
+    for COMP_NAME in gnu #intel
     do
       for MPI in FALSE TRUE
       do
-        for OMP in TRUE FALSE
+        for OMP in FALSE TRUE
         do
           if [ ${COMP_NAME} == 'gnu' ]; then
             #GCC environment
@@ -77,18 +77,22 @@ do
           if [ ${OMP} == 'TRUE' ]; then
             OMP_NAME=-omp
             OMP_EXE=.OMP
-            export OMP_NUM_THREADS=24
           else
             OMP_NAME=
             OMP_EXE=
-            export OMP_NUM_THREADS=1
           fi
 
           if [[ ${MPI} == 'TRUE' ]] && [[ ${OMP} == 'TRUE' ]]; then
-            MPI_CMD='mpirun -x OMP_NUM_THREADS -np 2 --map-by ppr:1:node --report-bindings'
+            export OMP_NUM_THREADS=6
+            MPI_CMD='mpirun -x OMP_NUM_THREADS -np 8 --map-by ppr:4:node --report-bindings'
           elif [[ ${MPI} == 'TRUE' ]] && [[ ${OMP} == 'FALSE' ]]; then
+            export OMP_NUM_THREADS=1
             MPI_CMD='mpirun -np 48 --map-by ppr:24:node --report-bindings'
+          elif [[ ${MPI} == 'FALSE' ]] && [[ ${OMP} == 'TRUE' ]]; then
+            export OMP_NUM_THREADS=24
+            MPI_CMD=
           else
+            export OMP_NUM_THREADS=1
             MPI_CMD=
           fi
 
