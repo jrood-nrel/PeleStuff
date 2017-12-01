@@ -16,7 +16,7 @@ cmd() {
 
 print_loop_body_header() {
   printf "************************************************************\n"
-  printf "Building Pele with:\n"
+  printf "Setting up Pele benchmark case with:\n"
   printf "${COMPILER_NAME}@${COMPILER_VERSION}\n"
   printf "REPO_DATE: ${REPO_DATE}\n"
   printf "at $(date).\n"
@@ -221,7 +221,9 @@ main() {
           printf "\nCleaning benchmark directory...\n"
           cmd "cd ${CURRENT_BENCHMARK_DIR} && rm -rf ${CURRENT_BENCHMARK_DIR}/*"
         fi
+        printf "\nSetting up benchmark directory...\n"
         (benchmark_setup_loop_body) > ${CURRENT_BENCHMARK_DIR}/pele-benchmark-setup-log.txt 2>&1
+        printf "\nDone setting up benchmark directory...\n"
       done
     done
   done
