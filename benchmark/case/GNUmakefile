@@ -7,11 +7,11 @@ COMP	   = gcc
 USE_MPI    = FALSE
 USE_REACT  = TRUE
 USE_SDC    = TRUE
-PELE_HOME  := $(PELEC_HOME)
+PELE_HOME  := $(PELEC_HOME)/..
 Eos_dir    := Fuego
 Reactions_dir := Fuego
 Chemistry_Model := LiDryer
 Transport_dir := EGLib
 Bpack   := ./Make.package
 Blocs   := .
-include $(PELE_HOME)/Exec/Make.PeleC
+include $(PELEC_HOME)/Exec/Make.PeleC

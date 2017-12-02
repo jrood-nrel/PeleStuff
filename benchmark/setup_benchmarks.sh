@@ -16,7 +16,7 @@ cmd() {
 
 print_loop_body_header() {
   printf "************************************************************\n"
-  printf "Setting up Pele benchmark case with:\n"
+  printf "Setting up PeleC benchmark case with:\n"
   printf "${COMPILER_NAME}@${COMPILER_VERSION}\n"
   printf "REPO_DATE: ${REPO_DATE}\n"
   printf "at $(date).\n"
@@ -26,7 +26,7 @@ print_loop_body_header() {
 
 print_loop_body_footer() {
   printf "************************************************************\n"
-  printf "Done setting up Pele benchmark case with:\n"
+  printf "Done setting up PeleC benchmark case with:\n"
   printf "${COMPILER_NAME}@${COMPILER_VERSION}\n"
   printf "REPO_DATE: ${REPO_DATE}\n"
   printf "at $(date).\n"
@@ -77,17 +77,28 @@ benchmark_setup_loop_body() {
     if [ "${COMPILER_NAME}" == 'gcc' ]; then
       cmd "module purge"
       cmd "module use /nopt/nrel/apps/modules/candidate/modulefiles"
+      #cmd "module load openmpi-gcc/1.10.0-5.2.0"
       cmd "module load gcc/5.2.0"
       cmd "module load python/2.7.8 &> /dev/null"
       cmd "module unload mkl"
       cmd "module load git/2.6.3"
       cmd "module list"
+    elif [ "${COMPILER_NAME}" == 'intel' ]; then
+      cmd "module purge"
+      cmd "module use /nopt/nrel/apps/modules/candidate/modulefiles"
+      #cmd "module load impi-intel/2017.0.2"
+      cmd "module load comp-intel/2017.0.2"
+      cmd "module load python/2.7.8 &> /dev/null"
+      cmd "module unload mkl"
+      cmd "module load git/2.6.3"
+      cmd "module list"
+      cmd "eval export INTEL_LICENSE_FILE=28518@admin1"
     fi
   fi
 
   printf "\nBuilding benchmark binary at $(date)...\n"
-  #cmd "cd ${PELEC_HOME}/Exec/Benchmarks/Benchmark && make -j8"
-  #cmd "mv ${PELEC_HOME}/Exec/Benchmarks/Benchmark/Pele* ${CURRENT_BENCHMARK_DIR}/"
+  cmd "cp -R ${CWD}/case ${CURRENT_BENCHMARK_DIR}/"
+  cmd "cd ${CURRENT_BENCHMARK_DIR}/case && make -j8"
   printf "Done building benchmark binary at $(date)...\n"
 
   printf "\n"
@@ -123,30 +134,32 @@ main() {
 
   # Set configurations to test for each machine
   if [ "${MACHINE_NAME}" == 'peregrine' ]; then
-    declare -a LIST_OF_COMPILERS=('gcc' 'intel')
+    declare -a LIST_OF_COMPILERS=('gcc')
     declare -a LIST_OF_GCC_COMPILERS=('5.2.0')
     declare -a LIST_OF_INTEL_COMPILERS=('17.0.2')
-    declare -a LIST_OF_REPO_DATES=('2017-03-01' '2017-07-01')
+    declare -a LIST_OF_REPO_DATES=('2017-11-15')
     ROOT_DIR=${HOME}/pelec_benchmark_suite
     RUN_DIR=${ROOT_DIR}/run
   elif [ "${MACHINE_NAME}" == 'edison' ]; then
-    declare -a LIST_OF_COMPILERS=('gcc' 'intel')
+    declare -a LIST_OF_COMPILERS=('gcc')
     declare -a LIST_OF_GCC_COMPILERS=('6.3.0')
     declare -a LIST_OF_INTEL_COMPILERS=('17.0.2')
-    declare -a LIST_OF_REPO_DATES=('2017-03-01' '2017-07-01')
+    declare -a LIST_OF_REPO_DATES=('2017-11-15')
     ROOT_DIR=${HOME}/pelec_benchmark_suite
     RUN_DIR=${ROOT_DIR}/run
   elif [ "${MACHINE_NAME}" == 'cori' ]; then
-    declare -a LIST_OF_COMPILERS=('gcc' 'intel')
+    declare -a LIST_OF_COMPILERS=('gcc')
     declare -a LIST_OF_GCC_COMPILERS=('6.3.0')
     declare -a LIST_OF_INTEL_COMPILERS=('17.0.2')
-    declare -a LIST_OF_REPO_DATES=('2017-03-01' '2017-07-01')
+    declare -a LIST_OF_REPO_DATES=('2017-11-15')
     ROOT_DIR=${HOME}/pelec_benchmark_suite
     RUN_DIR=${ROOT_DIR}/run
   else
     printf "\nMachine name not recognized.\n"
     exit 1
   fi
+
+  CWD=$(pwd)
 
   # Set the three repo directories
   export PELEC_HOME=${ROOT_DIR}/PeleC
