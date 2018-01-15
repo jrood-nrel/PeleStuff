@@ -7,18 +7,18 @@ int main(int argc, char *argv[])
   FILE *fw;
   FILE *fr;
   double* OriginalArray;
-  double* ReadArray;
+  //double* ReadArray;
   double* FilteredArray;
-  const int x0=16;
-  const int y0=16;
-  const int z0=16;
-  const int r=16;
-  const int N=33;
+  const int N=129;
+  const int x0=(N-1)/2;
+  const int y0=(N-1)/2;
+  const int z0=(N-1)/2;
+  const int r=(N-9)/2;
   Filter filter = Filter(box_5pt_approx, 2);
   const int Nf=N-(2*filter.get_filter_ngrow());
 
   OriginalArray = (double*)malloc(N*N*N*sizeof(double));
-  ReadArray = (double*)malloc(N*N*N*sizeof(double));
+  //ReadArray = (double*)malloc(N*N*N*sizeof(double));
   FilteredArray = (double*)malloc(Nf*Nf*Nf*sizeof(double));
 
   for(int k=0; k<N; k++){
@@ -36,28 +36,28 @@ int main(int argc, char *argv[])
     //printf("\n");
   }
 
-  fw = fopen("test.bin","wb");
-  fwrite(OriginalArray,sizeof(double),N*N*N,fw);
-  fclose(fw);
+  //fw = fopen("test.bin","wb");
+  //fwrite(OriginalArray,sizeof(double),N*N*N,fw);
+  //fclose(fw);
 
-  fr = fopen("test.bin","rb");
-  fread(ReadArray,sizeof(double),N*N*N,fr);
-  fclose(fr);
+  //fr = fopen("test.bin","rb");
+  //fread(ReadArray,sizeof(double),N*N*N,fr);
+  //fclose(fr);
 
   filter.apply_filter(OriginalArray,FilteredArray,N,Nf);
 
+  /*
   for(int k=0; k<Nf; k++){
     for(int j=0; j<Nf; j++){
       for(int i=0; i<Nf; i++){
         printf("%d,%d,%d,%f,%f\n",i,j,k,FilteredArray[(Nf*Nf)*k+(Nf)*j+i],OriginalArray[(N*N)*(k+filter.get_filter_ngrow())+(N)*(j+filter.get_filter_ngrow())+(i+filter.get_filter_ngrow())]);
       }
-      //printf("\n");
     }
-    //pdrintf("\n");
   }
-         
+  */
+
   free(OriginalArray);
-  free(ReadArray);
+  //free(ReadArray);
   free(FilteredArray);
 
   return 0;
