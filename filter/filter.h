@@ -2,9 +2,6 @@
 #define _FILTER_H_
 
 #include <vector>
-#ifdef _OPENMP
-#include <omp.h>
-#endif
 
 // Filter types
 enum filter_types { no_filter = 0,

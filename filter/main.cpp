@@ -7,20 +7,19 @@ int main(int argc, char *argv[])
   FILE *fw;
   FILE *fr;
   double* OriginalArray;
-  //double* ReadArray;
   double* FilteredArray;
-  const int N=129;
-  const int x0=(N-1)/2;
-  const int y0=(N-1)/2;
-  const int z0=(N-1)/2;
-  const int r=(N-9)/2;
+  const int N = 129;
+  const int x0 = (N-1)/2;
+  const int y0 = (N-1)/2;
+  const int z0 = (N-1)/2;
+  const int r = (N-9)/2;
   Filter filter = Filter(box_5pt_approx, 2);
-  const int Nf=N-(2*filter.get_filter_ngrow());
+  const int Nf = N-(2*filter.get_filter_ngrow());
 
   OriginalArray = (double*)malloc(N*N*N*sizeof(double));
-  //ReadArray = (double*)malloc(N*N*N*sizeof(double));
   FilteredArray = (double*)malloc(Nf*Nf*Nf*sizeof(double));
 
+  // Create sphere in original 3D domain
   for(int k=0; k<N; k++){
     for(int j=0; j<N; j++){
       for(int i=0; i<N; i++){
@@ -29,24 +28,14 @@ int main(int argc, char *argv[])
         } else {
           OriginalArray[(N*N)*k+(N)*j+i] = 0;
         }
-        //printf("%f ",OriginalArray[(N*N)*k+(N)*j+i]);
       }
-      //printf("\n");
     }
-    //printf("\n");
   }
 
-  //fw = fopen("test.bin","wb");
-  //fwrite(OriginalArray,sizeof(double),N*N*N,fw);
-  //fclose(fw);
-
-  //fr = fopen("test.bin","rb");
-  //fread(ReadArray,sizeof(double),N*N*N,fr);
-  //fclose(fr);
-
+  // Apply filter to domain
   filter.apply_filter(OriginalArray,FilteredArray,N,Nf);
 
-  /*
+  /* //Print out original and filtered array to read in visit
   for(int k=0; k<Nf; k++){
     for(int j=0; j<Nf; j++){
       for(int i=0; i<Nf; i++){
@@ -57,7 +46,6 @@ int main(int argc, char *argv[])
   */
 
   free(OriginalArray);
-  //free(ReadArray);
   free(FilteredArray);
 
   return 0;
