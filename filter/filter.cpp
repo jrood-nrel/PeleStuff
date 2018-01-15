@@ -377,11 +377,11 @@ void Filter::set_gaussian_5pt_optimized_approx_weights(){
  **/
 void Filter::apply_filter(const double *OriginalArray, double* FilteredArray, const int N, const int Nf){
   for (int n = 0; n < _nweights; n++){
-    for(int k=0; k<Nf; k++){
+    for(int k = 0; k < Nf; k++){
       for (int m = 0; m < _nweights; m++){
-        for(int j=0; j<Nf; j++){
+        for(int j = 0; j < Nf; j++){
           for (int l = 0; l < _nweights; l++){
-            for(int i=0; i<Nf; i++){
+            for(int i = 0; i < Nf; i++){
               FilteredArray[(Nf*Nf)*k+(Nf)*j+i] += _weights[l] * _weights[m] * _weights[n] * OriginalArray[(N*N)*(k+n)+(N)*(j+m)+(i+l)];
             }
           }
