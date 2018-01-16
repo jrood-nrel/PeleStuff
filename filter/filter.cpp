@@ -1,5 +1,4 @@
-#include<stdlib.h>
-#include<stdio.h>
+#include<iostream>
 #include<cmath>
 #include<vector>
 
@@ -488,6 +487,7 @@ void Filter::apply_filter(const double *OriginalArray, double* FilteredArray, co
   for(int k = 0; k < Nf; k++){
     for(int j = 0; j < Nf; j++){
       for(int i = 0; i < Nf; i++){
+        FilteredArray[(Nf*Nf)*k+(Nf)*j+i] = 0.0;
         double sum = 0.0;
         for(int n = 0; n < _nweights; n++){
           for(int m = 0; m < _nweights; m++){
@@ -504,10 +504,8 @@ void Filter::apply_filter(const double *OriginalArray, double* FilteredArray, co
 
 int main(int argc, char *argv[])
 {
-  FILE *fw;
-  FILE *fr;
-  double* OriginalArray;
-  double* FilteredArray;
+  double* OriginalArray=NULL;
+  double* FilteredArray=NULL;
   const int N = 65;
   const int x0 = (N-1)/2;
   const int y0 = (N-1)/2;
@@ -522,8 +520,8 @@ int main(int argc, char *argv[])
   const double tol = 1e-15;
   double goldNorm;
 
-  OriginalArray = (double*)calloc(N*N*N,sizeof(double));
-  FilteredArray = (double*)calloc(Nf*Nf*Nf,sizeof(double));
+  OriginalArray = new double[N*N*N]();
+  FilteredArray = new double[Nf*Nf*Nf]();
 
   // Create sphere in original 3D domain
   for(int k=0; k<N; k++){
@@ -531,6 +529,8 @@ int main(int argc, char *argv[])
       for(int i=0; i<N; i++){
         if(((i-x0)*(i-x0)+(j-y0)*(j-y0)+(k-z0)*(k-z0)) < r*r) {
           OriginalArray[(N*N)*k+(N)*j+i] = 1.0;
+        } else {
+          OriginalArray[(N*N)*k+(N)*j+i] = 0.0;
         }
       }
     }
@@ -555,8 +555,8 @@ int main(int argc, char *argv[])
   norm = sqrt(norm);
   //printf("%.16f\n",norm);
 
-  free(OriginalArray);
-  free(FilteredArray);
+  delete OriginalArray;
+  delete FilteredArray;
 
   if(filter_type == box_5pt_approx){
     goldNorm = goldNorm5pt;
@@ -565,10 +565,10 @@ int main(int argc, char *argv[])
   }
 
   if(abs(norm-goldNorm) < tol){
-    printf("Success.\n");
+    std::cout << "Success" << std::endl;
     return 0;
   } else {
-    printf("Fail.\n");
+    std::cout << "Fail" << std::endl;
     return 1;
   }
 }
