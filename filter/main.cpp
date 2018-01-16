@@ -484,16 +484,19 @@ void Filter::set_gaussian_5pt_optimized_approx_weights(){
  * Run the filtering operation on a MultiFab
  **/
 void Filter::apply_filter(const double *OriginalArray, double* FilteredArray, const int N, const int Nf){
-  for (int n = 0; n < _nweights; n++){
-    for(int k = 0; k < Nf; k++){
-      for (int m = 0; m < _nweights; m++){
-        for(int j = 0; j < Nf; j++){
-          for (int l = 0; l < _nweights; l++){
-            for(int i = 0; i < Nf; i++){
-              FilteredArray[(Nf*Nf)*k+(Nf)*j+i] += _weights[l] * _weights[m] * _weights[n] * OriginalArray[(N*N)*(k+n)+(N)*(j+m)+(i+l)];
+  #pragma omp parallel for
+  for(int k = 0; k < Nf; k++){
+    for(int j = 0; j < Nf; j++){
+      for(int i = 0; i < Nf; i++){
+        double sum = 0.0;
+        for(int n = 0; n < _nweights; n++){
+          for(int m = 0; m < _nweights; m++){
+            for(int l = 0; l < _nweights; l++){
+              sum += _weights[n] * _weights[m] * _weights[l] * OriginalArray[(N*N)*(k+n)+(N)*(j+m)+(i+l)];
             }
           }
         }
+        FilteredArray[(Nf*Nf)*k+(Nf)*j+i] = sum;
       }
     }
   }
@@ -510,7 +513,7 @@ int main(int argc, char *argv[])
   const int y0 = (N-1)/2;
   const int z0 = (N-1)/2;
   const int r = (N-9)/2;
-  const int filter_type = box_3pt_approx;
+  const int filter_type = box_5pt_approx;
   Filter filter = Filter(filter_type, 2);
   const int Nf = N-(2*filter.get_filter_ngrow());
   double norm = 0.0;
