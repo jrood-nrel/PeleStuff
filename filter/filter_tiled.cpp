@@ -1,6 +1,22 @@
 #include<iostream>
 #include<cmath>
 #include<vector>
+#include <chrono>
+
+class Timer
+{
+public:
+    Timer() : beg_(clock_::now()) {}
+    void reset() { beg_ = clock_::now(); }
+    double elapsed() const { 
+        return std::chrono::duration_cast<second_>
+            (clock_::now() - beg_).count(); }
+
+private:
+    typedef std::chrono::high_resolution_clock clock_;
+    typedef std::chrono::duration<double, std::ratio<1> > second_;
+    std::chrono::time_point<clock_> beg_;
+};
 
 // Filter types
 enum filter_types { no_filter = 0,
@@ -483,7 +499,7 @@ void Filter::set_gaussian_5pt_optimized_approx_weights(){
  * Run the filtering operation on a MultiFab
  **/
 void Filter::apply_filter(const double *OriginalArray, double* FilteredArray, const int N, const int Nf){
-  const int tile_size = (Nf-1)/4;
+  const int tile_size = (Nf-1)/2;
   #pragma omp parallel for
   for(int k = 0; k < Nf; k+=tile_size){
     for(int j = 0; j < Nf; j+=tile_size){
@@ -492,15 +508,14 @@ void Filter::apply_filter(const double *OriginalArray, double* FilteredArray, co
           for(int jj = j; jj < std::min(Nf,j+tile_size); jj++){
             for(int ii = i; ii < std::min(Nf,i+tile_size); ii++){
               FilteredArray[(Nf*Nf)*kk+(Nf)*jj+ii] = 0.0;
-              double sum = 0.0;
               for(int n = 0; n < _nweights; n++){
                 for(int m = 0; m < _nweights; m++){
                   for(int l = 0; l < _nweights; l++){
-                    sum += _weights[n] * _weights[m] * _weights[l] * OriginalArray[(N*N)*(kk+n)+(N)*(jj+m)+(ii+l)];
+                    FilteredArray[(Nf*Nf)*kk+(Nf)*jj+ii] +=
+                      _weights[n] * _weights[m] * _weights[l] * OriginalArray[(N*N)*(kk+n)+(N)*(jj+m)+(ii+l)];
                   }
                 }
               }
-              FilteredArray[(Nf*Nf)*kk+(Nf)*jj+ii] = sum;
             }
           }
         }
@@ -513,7 +528,7 @@ int main(int argc, char *argv[])
 {
   double* OriginalArray=NULL;
   double* FilteredArray=NULL;
-  const int N = 65;
+  const int N = 257;
   const int x0 = (N-1)/2;
   const int y0 = (N-1)/2;
   const int z0 = (N-1)/2;
@@ -522,10 +537,12 @@ int main(int argc, char *argv[])
   Filter filter = Filter(filter_type, 2);
   const int Nf = N-(2*filter.get_filter_ngrow());
   double norm = 0.0;
-  const double goldNorm5pt = 297.9187131508175526;
-  const double goldNorm3pt = 298.0234308968230152;
+  const double goldNorm5ptN65 = 297.9187131508175526;
+  const double goldNorm3ptN65 = 298.0234308968230152;
+  const double goldNorm5ptN257 = 2814.8839319908888683;
   const double tol = 1e-15;
   double goldNorm;
+  Timer tmr;
 
   OriginalArray = new double[N*N*N]();
   FilteredArray = new double[Nf*Nf*Nf]();
@@ -544,7 +561,9 @@ int main(int argc, char *argv[])
   }
 
   // Apply filter to domain
+  tmr.reset();
   filter.apply_filter(OriginalArray,FilteredArray,N,Nf);
+  std::cout << tmr.elapsed() << " seconds" << std::endl;
 
   /*//Print out original and filtered array to read in visit
   for(int k=0; k<Nf; k++){
@@ -566,9 +585,13 @@ int main(int argc, char *argv[])
   delete FilteredArray;
 
   if(filter_type == box_5pt_approx){
-    goldNorm = goldNorm5pt;
+    if(N == 65) {
+      goldNorm = goldNorm5ptN65;
+    } else if (N == 257) {
+      goldNorm = goldNorm5ptN257;
+    }
   } else if(filter_type == box_3pt_approx){
-    goldNorm = goldNorm3pt;
+    goldNorm = goldNorm3ptN65;
   }
 
   if(abs(norm-goldNorm) < tol){
