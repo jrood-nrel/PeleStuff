@@ -499,8 +499,8 @@ void Filter::set_gaussian_5pt_optimized_approx_weights(){
  * Run the filtering operation on a MultiFab
  **/
 void Filter::apply_filter(const double *OriginalArray, double* FilteredArray, const int N, const int Nf){
-  const int tile_size = (Nf-1)/2;
-  #pragma omp parallel for
+/*  const int tile_size = (Nf-1)/64;
+  #pragma omp parallel for collapse(2)
   for(int k = 0; k < Nf; k+=tile_size){
     for(int j = 0; j < Nf; j+=tile_size){
       for(int i = 0; i < Nf; i+=tile_size){
@@ -522,19 +522,38 @@ void Filter::apply_filter(const double *OriginalArray, double* FilteredArray, co
       }
     }
   }
+*/
+  #pragma omp parallel for collapse(2)
+  for(int k = 0; k < Nf; k++){
+    for(int j = 0; j < Nf; j++){
+      for(int i = 0; i < Nf; i++){
+        FilteredArray[(Nf*Nf)*k+(Nf)*j+i] = 0.0;
+        for(int n = 0; n < _nweights; n++){
+          for(int m = 0; m < _nweights; m++){
+            for(int l = 0; l < _nweights; l++){
+              FilteredArray[(Nf*Nf)*k+(Nf)*j+i] +=
+                _weights[n] * _weights[m] * _weights[l] * OriginalArray[(N*N)*(k+n)+(N)*(j+m)+(i+l)];
+            }
+          }
+        }
+      }
+    }
+  }
 }
 
 int main(int argc, char *argv[])
 {
   double* OriginalArray=NULL;
   double* FilteredArray=NULL;
-  const int N = 257;
+  const int N = 33;
   const int x0 = (N-1)/2;
   const int y0 = (N-1)/2;
   const int z0 = (N-1)/2;
   const int r = (N-9)/2;
-  const int filter_type = box_5pt_approx;
-  Filter filter = Filter(filter_type, 2);
+  const int npoints = 7;
+  const int fgr = npoints-1;
+  const int filter_type = box;
+  Filter filter = Filter(filter_type, fgr);
   const int Nf = N-(2*filter.get_filter_ngrow());
   double norm = 0.0;
   const double goldNorm5ptN65 = 297.9187131508175526;
@@ -562,7 +581,9 @@ int main(int argc, char *argv[])
 
   // Apply filter to domain
   tmr.reset();
-  filter.apply_filter(OriginalArray,FilteredArray,N,Nf);
+  for(int i=0; i<100; i++){
+    filter.apply_filter(OriginalArray,FilteredArray,N,Nf);
+  }
   std::cout << tmr.elapsed() << " seconds" << std::endl;
 
   /*//Print out original and filtered array to read in visit

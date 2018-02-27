@@ -506,7 +506,7 @@ int main(int argc, char *argv[])
 {
   double* OriginalArray=NULL;
   double* FilteredArray=NULL;
-  const int N = 65;
+  const int N = 33;
   const int x0 = (N-1)/2;
   const int y0 = (N-1)/2;
   const int z0 = (N-1)/2;
