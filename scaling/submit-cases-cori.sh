@@ -5,25 +5,33 @@ set -e
 # Job settings
 EMAIL="jon.rood@nrel.gov"
 ALLOCATION="m2860"
-TEST_RUN="TRUE"
+TEST_RUN="FALSE"
 
 # Create list of jobs with varying parameters to submit
+EXAMPLE_JOB='job_name:queue:cpu_type:exe_path:input_file:nodes:ranks_per_node:hypercores_per_thread:minutes'
 declare -a JOBS
-#JOBS[x]='job_name:queue:cpu_type:exe_path:input_file:nodes:ranks_per_node:hypercores_per_thread:minutes'
+declare -a INPUT_FILE_ARGS
 JOBS[0]='pelec-scaling:debug:haswell:./PeleC3d.intel.haswell.MPI.OMP.ex:input-3d:1:8:2:20'
+INPUT_FILE_ARGS[0]='amr.n_cell=16 16 256'
 
 if [ "${TEST_RUN}" == 'TRUE' ]; then
    EXTRA_ARGS="--test-only"
 else
-   exec &> >(tee -a "submit-cases-cori-$(date +%M-%H-%d-%m-%Y).log")
+   exec &> >(tee "submit-cases-cori-$(date +%M-%H-%d-%m-%Y).log")
 fi
 
 printf "Submitting these job configurations:\n"
+printf " - ${EXAMPLE_JOB}\n\n"
+INDEX=0
 for JOB in "${JOBS[@]}"; do
-   printf " ${JOB}\n"
+   printf "$((INDEX+1)): ${JOB}\n"
+   printf "     - ${INPUT_FILE_ARGS[$INDEX]}\n"
+   INDEX=$((INDEX+1))
 done
+printf "\n"
 
 # Job script submission
+INDEX=0
 for JOB in "${JOBS[@]}"; do
    PARAMETER=(${JOB//:/ })
    JOB_NAME=${PARAMETER[0]}
@@ -63,9 +71,10 @@ for JOB in "${JOBS[@]}"; do
             -t ${JOB_TIME_IN_MINUTES} \
             --mail-user=${EMAIL} \
             --mail-type=NONE \
-            --export=NODES=${NODES},RANKS=${RANKS},CORES_PER_RANK=${CORES_PER_RANK},CORES=${CORES},THREADS_PER_RANK=${THREADS_PER_RANK},PELEC_EXE="${PELEC_EXE}",INPUT_FILE="${INPUT_FILE}" \
+            --export=NODES=${NODES},RANKS=${RANKS},CORES_PER_RANK=${CORES_PER_RANK},CORES=${CORES},THREADS_PER_RANK=${THREADS_PER_RANK},PELEC_EXE="${PELEC_EXE}",INPUT_FILE="${INPUT_FILE}",INPUT_FILE_ARGS="${INPUT_FILE_ARGS[$INDEX]}" \
             ${KNL_CORE_SPECIALIZATION} \
             ${EXTRA_ARGS} \
             run-case.sh)
+   INDEX=$((INDEX+1))
    printf "\n"
 done
