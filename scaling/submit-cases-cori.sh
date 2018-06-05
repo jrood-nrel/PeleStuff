@@ -1,6 +1,7 @@
 #!/bin/bash -l
 
 set -e
+OWD=$(pwd)
 
 # Basic job settings
 EMAIL="jon.rood@nrel.gov"
@@ -11,16 +12,24 @@ TEST_RUN="FALSE"
 EXAMPLE_JOB='job_name:queue:cpu_type:exe_path:input_file:nodes:ranks_per_node:hypercores_per_thread:minutes'
 declare -a JOBS
 declare -a INPUT_FILE_ARGS
-JOBS[1]='pelec-scaling:debug:haswell:./PeleC3d.intel.haswell.MPI.OMP.ex:input-3d:1:8:2:20'
-INPUT_FILE_ARGS[1]='amr.n_cell=16 16 256'
-JOBS[2]='pelec-scaling:debug:haswell:./PeleC3d.intel.haswell.MPI.OMP.ex:input-3d:1:8:2:20'
-INPUT_FILE_ARGS[2]='amr.n_cell=32 32 512'
+JOBS[1]="pelec-scaling:debug:haswell:${OWD}/PeleC3d.intel.haswell.MPI.OMP.ex:${OWD}/input-3d:1:2:2:20"
+INPUT_FILE_ARGS[1]=''
+JOBS[2]="pelec-scaling:debug:haswell:${OWD}/PeleC3d.intel.haswell.MPI.OMP.ex:${OWD}/input-3d:1:4:2:20"
+INPUT_FILE_ARGS[2]=''
+JOBS[3]="pelec-scaling:debug:haswell:${OWD}/PeleC3d.intel.haswell.MPI.OMP.ex:${OWD}/input-3d:1:8:2:20"
+INPUT_FILE_ARGS[3]=''
+JOBS[4]="pelec-scaling:debug:haswell:${OWD}/PeleC3d.intel.haswell.MPI.OMP.ex:${OWD}/input-3d:1:16:2:20"
+INPUT_FILE_ARGS[4]=''
+JOBS[5]="pelec-scaling:debug:haswell:${OWD}/PeleC3d.intel.haswell.MPI.OMP.ex:${OWD}/input-3d:1:32:2:20"
+INPUT_FILE_ARGS[5]=''
 
 # If we're testing, do a fake job submission to slurm, otherwise log this script's output
 if [ "${TEST_RUN}" == 'TRUE' ]; then
    EXTRA_ARGS="--test-only"
 else
-   exec &> >(tee "submit-cases-cori-$(date +%M-%H-%d-%m-%Y).log")
+   CASE_SET="submit-cases-cori-$(date +%M-%H-%d-%m-%Y)"
+   mkdir ${OWD}/${CASE_SET} && cd ${OWD}/${CASE_SET}
+   exec &> >(tee "${OWD}/${CASE_SET}/${CASE_SET}.log")
 fi
 
 # Display list of jobs that will be submitted
@@ -78,7 +87,7 @@ for JOB in "${JOBS[@]}"; do
             --export=NODES=${NODES},RANKS=${RANKS},CORES_PER_RANK=${CORES_PER_RANK},CORES=${CORES},THREADS_PER_RANK=${THREADS_PER_RANK},PELEC_EXE="${PELEC_EXE}",INPUT_FILE="${INPUT_FILE}",INPUT_FILE_ARGS="${INPUT_FILE_ARGS[$INDEX]}" \
             ${KNL_CORE_SPECIALIZATION} \
             ${EXTRA_ARGS} \
-            run-case.sh)
+            ${OWD}/run-case.sh)
    INDEX=$((INDEX+1))
    printf "\n"
 done
