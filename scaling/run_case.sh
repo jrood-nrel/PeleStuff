@@ -8,9 +8,9 @@ cmd() {
   eval "$@"
 }
 
-echo "Running with ${RANKS} ranks and ${THREADS} threads on ${NODES} nodes with a total of ${CORES} cores..."
+echo "Running with ${RANKS} ranks and ${THREADS_PER_RANK} threads on ${NODES} nodes with a total of ${CORES} cores..."
 
-cmd "export OMP_NUM_THREADS=${THREADS}"
+cmd "export OMP_NUM_THREADS=${THREADS_PER_RANK}"
 cmd "export OMP_PLACES=threads"
 cmd "export OMP_PROC_BIND=spread"
 

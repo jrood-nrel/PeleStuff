@@ -16,7 +16,6 @@ declare -a JOBS
 #JOBS[x]='nodes:minutes'
 JOBS[0]='1:20'
 JOBS[1]='2:10'
-JOBS[2]='4:5'
 
 # Cori CPU logic
 if [ "${CPU_TYPE}" == 'knl' ]; then
@@ -25,7 +24,7 @@ if [ "${CPU_TYPE}" == 'knl' ]; then
    HYPERTHREADS=4
    #User defined
    RANKS_PER_NODE=16
-   HYPERCORES_PER_THREAD=2
+   HYPERCORES_PER_THREAD=4
    CORES_PER_RANK=$((${HYPERTHREADS} * ${CORES_PER_NODE} / ${RANKS_PER_NODE}))
    EXTRA_ARGS="-S 4"
 elif [ "${CPU_TYPE}" == 'haswell' ]; then
@@ -33,7 +32,7 @@ elif [ "${CPU_TYPE}" == 'haswell' ]; then
    CORES_PER_NODE=32
    HYPERTHREADS=2
    #User defined
-   RANKS_PER_NODE=8
+   RANKS_PER_NODE=4
    HYPERCORES_PER_THREAD=2
    CORES_PER_RANK=$((${HYPERTHREADS} * ${CORES_PER_NODE} / ${RANKS_PER_NODE}))
 fi
@@ -45,8 +44,8 @@ for JOB in "${JOBS[@]}"; do
    JOB_TIME_IN_MINUTES=${PARAMETER[1]}
    RANKS=$((${NODES} * ${RANKS_PER_NODE}))
    CORES=$((${CORES_PER_NODE} * ${NODES}))
-   THREADS=$((${CORES_PER_RANK} / ${HYPERCORES_PER_THREAD}))
-   (set -x; echo "sbatch \
+   THREADS_PER_RANK=$((${CORES_PER_RANK} / ${HYPERCORES_PER_THREAD}))
+   (set -x; sbatch \
             -A ${ALLOCATION} \
             -L SCRATCH \
             -C ${CPU_TYPE} \
@@ -55,10 +54,10 @@ for JOB in "${JOBS[@]}"; do
             -q ${QUEUE} \
             -N ${NODES} \
             -t ${JOB_TIME_IN_MINUTES} \
-            --export=NODES=${NODES},RANKS=${RANKS},CORES_PER_RANK=${CORES_PER_RANK},CORES=${CORES},THREADS=${THREADS},PELEC_EXE="${PELEC_EXE}",INPUT_FILE="${INPUT_FILE}" \
+            --mail-user=${EMAIL} \
+            --mail-type=ALL \
+            --export=NODES=${NODES},RANKS=${RANKS},CORES_PER_RANK=${CORES_PER_RANK},CORES=${CORES},THREADS_PER_RANK=${THREADS_PER_RANK},PELEC_EXE="${PELEC_EXE}",INPUT_FILE="${INPUT_FILE}" \
             ${EXTRA_ARGS} \
-            run_case.sh")
+            run_case.sh)
    printf "\n"
 done
-#            --mail-user=${EMAIL} \
-#            --mail-type=ALL \
