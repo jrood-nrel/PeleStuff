@@ -8,8 +8,8 @@ JOB_NAME="pelec-scaling"
 QUEUE="debug"
 CPU_TYPE="haswell"
 ALLOCATION="m2860"
-PELEC_EXE="./PeleC3d.intel.ivybridge.MPI.OMP.ex"
-INPUT_FILE="inputs_3d"
+PELEC_EXE="./PeleC3d.intel.haswell.MPI.OMP.ex"
+INPUT_FILE="input-3d"
 
 # Create list of jobs with varying parameters to submit
 declare -a JOBS
@@ -45,6 +45,7 @@ for JOB in "${JOBS[@]}"; do
    RANKS=$((${NODES} * ${RANKS_PER_NODE}))
    CORES=$((${CORES_PER_NODE} * ${NODES}))
    THREADS_PER_RANK=$((${CORES_PER_RANK} / ${HYPERCORES_PER_THREAD}))
+   printf "Submitting ${NODES} node job...\n"
    (set -x; sbatch \
             -A ${ALLOCATION} \
             -L SCRATCH \
@@ -55,7 +56,7 @@ for JOB in "${JOBS[@]}"; do
             -N ${NODES} \
             -t ${JOB_TIME_IN_MINUTES} \
             --mail-user=${EMAIL} \
-            --mail-type=ALL \
+            --mail-type=NONE \
             --export=NODES=${NODES},RANKS=${RANKS},CORES_PER_RANK=${CORES_PER_RANK},CORES=${CORES},THREADS_PER_RANK=${THREADS_PER_RANK},PELEC_EXE="${PELEC_EXE}",INPUT_FILE="${INPUT_FILE}" \
             ${EXTRA_ARGS} \
             run_case.sh)
