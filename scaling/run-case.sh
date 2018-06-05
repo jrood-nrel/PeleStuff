@@ -10,6 +10,8 @@ cmd() {
 
 echo "Running with ${RANKS} ranks and ${THREADS_PER_RANK} threads on ${NODES} nodes with a total of ${CORES} cores..."
 
+cmd "module load ipm"
+cmd "export IPM_REPORT=full IPM_LOG=full"
 cmd "export OMP_NUM_THREADS=${THREADS_PER_RANK}"
 cmd "export OMP_PLACES=threads"
 cmd "export OMP_PROC_BIND=spread"

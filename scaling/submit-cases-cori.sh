@@ -1,6 +1,7 @@
 #!/bin/bash -l
 
 set -e
+exec &> >(tee -a "submit-cases-cori-$(date +%M-%H-%d-%m-%Y).log")
 
 # Job settings
 EMAIL="jon.rood@nrel.gov"
@@ -15,7 +16,6 @@ INPUT_FILE="input-3d"
 declare -a JOBS
 #JOBS[x]='nodes:minutes'
 JOBS[0]='1:20'
-JOBS[1]='2:10'
 
 # Cori CPU logic
 if [ "${CPU_TYPE}" == 'knl' ]; then
@@ -32,7 +32,7 @@ elif [ "${CPU_TYPE}" == 'haswell' ]; then
    CORES_PER_NODE=32
    HYPERTHREADS=2
    #User defined
-   RANKS_PER_NODE=4
+   RANKS_PER_NODE=8
    HYPERCORES_PER_THREAD=2
    CORES_PER_RANK=$((${HYPERTHREADS} * ${CORES_PER_NODE} / ${RANKS_PER_NODE}))
 fi
@@ -59,6 +59,6 @@ for JOB in "${JOBS[@]}"; do
             --mail-type=NONE \
             --export=NODES=${NODES},RANKS=${RANKS},CORES_PER_RANK=${CORES_PER_RANK},CORES=${CORES},THREADS_PER_RANK=${THREADS_PER_RANK},PELEC_EXE="${PELEC_EXE}",INPUT_FILE="${INPUT_FILE}" \
             ${EXTRA_ARGS} \
-            run_case.sh)
+            run-case.sh)
    printf "\n"
 done
