@@ -11,10 +11,10 @@ TEST_RUN="FALSE"
 EXAMPLE_JOB='job_name:queue:cpu_type:exe_path:input_file:nodes:ranks_per_node:hypercores_per_thread:minutes'
 declare -a JOBS
 declare -a INPUT_FILE_ARGS
-JOBS[0]='pelec-scaling:debug:haswell:./PeleC3d.intel.haswell.MPI.OMP.ex:input-3d:1:8:2:20'
-INPUT_FILE_ARGS[0]='amr.n_cell=16 16 256'
 JOBS[1]='pelec-scaling:debug:haswell:./PeleC3d.intel.haswell.MPI.OMP.ex:input-3d:1:8:2:20'
-INPUT_FILE_ARGS[1]='amr.n_cell=32 32 512'
+INPUT_FILE_ARGS[1]='amr.n_cell=16 16 256'
+JOBS[2]='pelec-scaling:debug:haswell:./PeleC3d.intel.haswell.MPI.OMP.ex:input-3d:1:8:2:20'
+INPUT_FILE_ARGS[2]='amr.n_cell=32 32 512'
 
 # If we're testing, do a fake job submission to slurm, otherwise log this script's output
 if [ "${TEST_RUN}" == 'TRUE' ]; then
@@ -26,16 +26,16 @@ fi
 # Display list of jobs that will be submitted
 printf "Submitting these job configurations:\n"
 printf " - ${EXAMPLE_JOB}\n\n"
-INDEX=0
+INDEX=1
 for JOB in "${JOBS[@]}"; do
-   printf "$((INDEX+1)): ${JOB}\n"
+   printf "${INDEX}: ${JOB}\n"
    printf "     - ${INPUT_FILE_ARGS[$INDEX]}\n"
    INDEX=$((INDEX+1))
 done
 printf "\n"
 
 # Do the job script submission for each job
-INDEX=0
+INDEX=1
 for JOB in "${JOBS[@]}"; do
    PARAMETER=(${JOB//:/ })
    JOB_NAME=${PARAMETER[0]}
@@ -63,12 +63,12 @@ for JOB in "${JOBS[@]}"; do
    CORES_PER_RANK=$((${HYPERTHREADS} * ${CORES_PER_NODE} / ${RANKS_PER_NODE}))
    THREADS_PER_RANK=$((${CORES_PER_RANK} / ${HYPERCORES_PER_THREAD}))
 
-   printf "Submitting job $((INDEX+1))...\n"
+   printf "Submitting job ${INDEX}...\n"
    (set -x; sbatch \
             -A ${ALLOCATION} \
             -L SCRATCH \
             -C ${CPU_TYPE} \
-            -J ${JOB_NAME}-${NODES} \
+            -J ${JOB_NAME}-${INDEX} \
             -o %x.o%j \
             -q ${QUEUE} \
             -N ${NODES} \
@@ -82,3 +82,5 @@ for JOB in "${JOBS[@]}"; do
    INDEX=$((INDEX+1))
    printf "\n"
 done
+
+printf "\n"
