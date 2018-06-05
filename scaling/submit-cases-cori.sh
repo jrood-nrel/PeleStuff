@@ -59,7 +59,7 @@ for JOB in "${JOBS[@]}"; do
    CORES_PER_RANK=$((${HYPERTHREADS} * ${CORES_PER_NODE} / ${RANKS_PER_NODE}))
    THREADS_PER_RANK=$((${CORES_PER_RANK} / ${HYPERCORES_PER_THREAD}))
 
-   printf "Submitting ${NODES} node job...\n"
+   printf "Submitting job $((INDEX+1))...\n"
    (set -x; sbatch \
             -A ${ALLOCATION} \
             -L SCRATCH \
