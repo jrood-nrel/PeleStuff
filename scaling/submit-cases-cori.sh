@@ -2,7 +2,7 @@
 
 set -e
 
-# Job settings
+# Basic job settings
 EMAIL="jon.rood@nrel.gov"
 ALLOCATION="m2860"
 TEST_RUN="FALSE"
@@ -13,13 +13,17 @@ declare -a JOBS
 declare -a INPUT_FILE_ARGS
 JOBS[0]='pelec-scaling:debug:haswell:./PeleC3d.intel.haswell.MPI.OMP.ex:input-3d:1:8:2:20'
 INPUT_FILE_ARGS[0]='amr.n_cell=16 16 256'
+JOBS[1]='pelec-scaling:debug:haswell:./PeleC3d.intel.haswell.MPI.OMP.ex:input-3d:1:8:2:20'
+INPUT_FILE_ARGS[1]='amr.n_cell=32 32 512'
 
+# If we're testing, do a fake job submission to slurm, otherwise log this script's output
 if [ "${TEST_RUN}" == 'TRUE' ]; then
    EXTRA_ARGS="--test-only"
 else
    exec &> >(tee "submit-cases-cori-$(date +%M-%H-%d-%m-%Y).log")
 fi
 
+# Display list of jobs that will be submitted
 printf "Submitting these job configurations:\n"
 printf " - ${EXAMPLE_JOB}\n\n"
 INDEX=0
@@ -30,7 +34,7 @@ for JOB in "${JOBS[@]}"; do
 done
 printf "\n"
 
-# Job script submission
+# Do the job script submission for each job
 INDEX=0
 for JOB in "${JOBS[@]}"; do
    PARAMETER=(${JOB//:/ })
