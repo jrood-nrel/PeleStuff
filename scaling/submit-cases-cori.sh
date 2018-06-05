@@ -87,7 +87,7 @@ for JOB in "${JOBS[@]}"; do
             --export=NODES=${NODES},RANKS=${RANKS},CORES_PER_RANK=${CORES_PER_RANK},CORES=${CORES},THREADS_PER_RANK=${THREADS_PER_RANK},PELEC_EXE="${PELEC_EXE}",INPUT_FILE="${INPUT_FILE}",INPUT_FILE_ARGS="${INPUT_FILE_ARGS[$INDEX]}" \
             ${KNL_CORE_SPECIALIZATION} \
             ${EXTRA_ARGS} \
-            ${OWD}/run-case.sh)
+            ${OWD}/run-case-cori.sh)
    INDEX=$((INDEX+1))
    printf "\n"
 done
