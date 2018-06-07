@@ -8,17 +8,18 @@ EMAIL="jon.rood@nrel.gov"
 ALLOCATION="ExaCT"
 
 # Create list of jobs with varying parameters to submit
+COMPILER=intel
 EXAMPLE_JOB='job_name:queue:cpu_type:exe_path:input_file:nodes:ranks_per_node:hypercores_per_thread:seconds'
 declare -a JOBS
 declare -a INPUT_FILE_ARGS
-JOBS[1]="pelec-scaling:short:haswell:${OWD}/PeleC3d.gnu.MPI.ex:${OWD}/input-3d:1:12:2:1800"
+JOBS[1]="pelec-scaling:short:haswell:${OWD}/PeleC3d.${COMPILER}.MPI.ex:${OWD}/input-3d:1:12:2:1800"
 INPUT_FILE_ARGS[1]='amr.n_cell=128 128 128'
-JOBS[2]="pelec-scaling:short:haswell:${OWD}/PeleC3d.gnu.MPI.ex:${OWD}/input-3d:4:24:2:1800"
+JOBS[2]="pelec-scaling:short:haswell:${OWD}/PeleC3d.${COMPILER}.MPI.ex:${OWD}/input-3d:4:24:2:1800"
 INPUT_FILE_ARGS[2]='amr.n_cell=256 256 256'
-JOBS[3]="pelec-scaling:batch-h:haswell:${OWD}/PeleC3d.gnu.MPI.ex:${OWD}/input-3d:32:24:2:1800"
-INPUT_FILE_ARGS[3]='amr.n_cell=512 512 512'
-JOBS[4]="pelec-scaling:batch-h:haswell:${OWD}/PeleC3d.gnu.MPI.ex:${OWD}/input-3d:256:24:2:1800"
-INPUT_FILE_ARGS[4]='amr.n_cell=1024 1024 1024'
+#JOBS[3]="pelec-scaling:batch-h:haswell:${OWD}/PeleC3d.${COMPILER}.MPI.ex:${OWD}/input-3d:32:24:2:1800"
+#INPUT_FILE_ARGS[3]='amr.n_cell=512 512 512'
+#JOBS[4]="pelec-scaling:batch-h:haswell:${OWD}/PeleC3d.${COMPILER}.MPI.ex:${OWD}/input-3d:256:24:2:1800"
+#INPUT_FILE_ARGS[4]='amr.n_cell=1024 1024 1024'
 
 # Put everything in a new directory labeled with a date
 CASE_SET="submit-cases-peregrine-$(date +%Y-%m-%d-%H-%M)"
@@ -78,7 +79,7 @@ for JOB in "${JOBS[@]}"; do
             -m p \
             -M ${EMAIL} \
             -W umask=002 \
-            -v NODES=${NODES},RANKS=${RANKS},CORES_PER_RANK=${CORES_PER_RANK},RANKS_PER_NODE=${RANKS_PER_NODE},CORES=${CORES},THREADS_PER_RANK=${THREADS_PER_RANK},PELEC_EXE=${PELEC_EXE},INPUT_FILE=${INPUT_FILE},INPUT_FILE_ARGS="${SERIALISED_INPUT_FILE_ARGS}" \
+            -v COMPILER=${COMPILER},NODES=${NODES},RANKS=${RANKS},CORES_PER_RANK=${CORES_PER_RANK},RANKS_PER_NODE=${RANKS_PER_NODE},CORES=${CORES},THREADS_PER_RANK=${THREADS_PER_RANK},PELEC_EXE=${PELEC_EXE},INPUT_FILE=${INPUT_FILE},INPUT_FILE_ARGS="${SERIALISED_INPUT_FILE_ARGS}" \
             ${EXTRA_ARGS} \
             ${OWD}/run-case-peregrine.sh)
    INDEX=$((INDEX+1))

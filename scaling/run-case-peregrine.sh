@@ -15,7 +15,11 @@ cmd "module use /nopt/nrel/ecom/ecp/base/modules/gcc-6.2.0"
 cmd "module load gcc/6.2.0"
 cmd "module load git/2.17.0"
 cmd "module load python/2.7.14"
-cmd "module load openmpi/1.10.4"
+if [ "${COMPILER}" == 'gnu' ]; then
+   cmd "module load openmpi/1.10.4"
+elif [ "${COMPILER}" == 'intel' ]; then
+   cmd "module load intel-parallel-studio/cluster.2018.1"
+fi
 
 cmd "export OMP_NUM_THREADS=${THREADS_PER_RANK}"
 cmd "export OMP_PLACES=threads"
@@ -23,4 +27,9 @@ cmd "export OMP_PROC_BIND=spread"
 
 DESERIALISED_INPUT_FILE_ARGS=$(printf "%s" "${INPUT_FILE_ARGS}" | base64 --decode)
 
-cmd "mpirun -np ${RANKS} --map-by ppr:${RANKS_PER_NODE}:node --bind-to core ${PELEC_EXE} ${INPUT_FILE} ${DESERIALISED_INPUT_FILE_ARGS}"
+if [ "${COMPILER}" == 'gnu' ]; then
+   cmd "mpirun -np ${RANKS} --map-by ppr:${RANKS_PER_NODE}:node --bind-to core ${PELEC_EXE} ${INPUT_FILE} ${DESERIALISED_INPUT_FILE_ARGS}"
+elif [ "${COMPILER}" == 'intel' ]; then
+   # Process binding should happen by default
+   cmd "mpirun -n ${RANKS} -ppn ${RANKS_PER_NODE} ${PELEC_EXE} ${INPUT_FILE} ${DESERIALISED_INPUT_FILE_ARGS}"
+fi
