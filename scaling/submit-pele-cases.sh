@@ -1,10 +1,5 @@
 #!/bin/bash -l
 
-# Stop on all errors
-set -e
-# Save original working directory
-OWD=$(pwd)
-
 # Function for printing and executing commands
 cmd() {
   echo "+ $@"
@@ -60,6 +55,10 @@ else
   exit 1
 fi
 
+# Stop on all errors
+set -e
+# Save original working directory
+OWD=$(pwd)
 # Get job case list from external file
 source ${OWD}/pele-case-list.sh
 
@@ -131,7 +130,14 @@ for JOB in "${JOBS[@]}"; do
    (set -x; cp ${OWD}/*.dat ${THIS_JOB_DIR}/ || true)
 
    # Check that exe and input file exist before submitting
-   ls ${PELEC_EXE} && ls ${INPUT_FILE} > /dev/null 2>&1
+   if [ ! -f "${PELEC_EXE}" ]; then
+      printf "${PELEC_EXE} does not exist.\n"
+      exit 1
+   fi
+   if [ ! -f "${INPUT_FILE}" ]; then
+      printf "${INPUT_FILE} does not exist.\n"
+      exit 1
+   fi
 
    printf "Submitting job ${INDEX}...\n"
    submit_job
