@@ -21,4 +21,6 @@ cmd "export OMP_NUM_THREADS=${THREADS_PER_RANK}"
 cmd "export OMP_PLACES=threads"
 cmd "export OMP_PROC_BIND=spread"
 
-cmd "mpirun -np ${RANKS} --map-by ppr:${RANKS_PER_NODE}:node --bind-to core ${PELEC_EXE} ${INPUT_FILE} ${INPUT_FILE_ARGS}"
+DESERIALISED_INPUT_FILE_ARGS=$(printf "%s" "${INPUT_FILE_ARGS}" | base64 --decode)
+
+cmd "mpirun -np ${RANKS} --map-by ppr:${RANKS_PER_NODE}:node --bind-to core ${PELEC_EXE} ${INPUT_FILE} ${DESERIALISED_INPUT_FILE_ARGS}"

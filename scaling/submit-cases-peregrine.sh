@@ -11,10 +11,12 @@ ALLOCATION="ExaCT"
 EXAMPLE_JOB='job_name:queue:cpu_type:exe_path:input_file:nodes:ranks_per_node:hypercores_per_thread:seconds'
 declare -a JOBS
 declare -a INPUT_FILE_ARGS
-JOBS[1]="pelec-scaling:short:haswell:${OWD}/PeleC3d.gnu.MPI.ex:${OWD}/input-3d:1:24:2:1200"
-INPUT_FILE_ARGS[1]=''
-JOBS[2]="pelec-scaling:short:haswell:${OWD}/PeleC3d.gnu.MPI.ex:${OWD}/input-3d:2:12:2:1200"
-INPUT_FILE_ARGS[2]=''
+JOBS[1]="pelec-scaling:short:haswell:${OWD}/PeleC3d.gnu.MPI.ex:${OWD}/input-3d:1:12:2:14400"
+INPUT_FILE_ARGS[1]='amr.n_cell=128 128 128'
+JOBS[2]="pelec-scaling:short:haswell:${OWD}/PeleC3d.gnu.MPI.ex:${OWD}/input-3d:4:24:2:14400"
+INPUT_FILE_ARGS[2]='amr.n_cell=256 256 256'
+#JOBS[3]="pelec-scaling:batch-h:haswell:${OWD}/PeleC3d.gnu.MPI.ex:${OWD}/input-3d:32:24:2:14400"
+#INPUT_FILE_ARGS[3]='amr.n_cell=512 512 512'
 
 # Put everything in a new directory labeled with a date
 CASE_SET="submit-cases-peregrine-$(date +%Y-%m-%d-%H-%M)"
@@ -58,6 +60,10 @@ for JOB in "${JOBS[@]}"; do
    CORES_PER_RANK=$((${HYPERTHREADS} * ${CORES_PER_NODE} / ${RANKS_PER_NODE}))
    THREADS_PER_RANK=$((${CORES_PER_RANK} / ${HYPERCORES_PER_THREAD}))
 
+   # Need to serialise the input file arguments because qsub can't
+   # parse anything beyond a normal string when passing arguments
+   SERIALISED_INPUT_FILE_ARGS=$(printf "\0%s" "${INPUT_FILE_ARGS[$INDEX]}" | base64)
+
    printf "Submitting job ${INDEX}...\n"
    (set -x; qsub \
             -A ${ALLOCATION} \
@@ -70,7 +76,7 @@ for JOB in "${JOBS[@]}"; do
             -m p \
             -M ${EMAIL} \
             -W umask=002 \
-            -v NODES=${NODES},RANKS=${RANKS},CORES_PER_RANK=${CORES_PER_RANK},RANKS_PER_NODE=${RANKS_PER_NODE},CORES=${CORES},THREADS_PER_RANK=${THREADS_PER_RANK},PELEC_EXE=${PELEC_EXE},INPUT_FILE=${INPUT_FILE},INPUT_FILE_ARGS="${INPUT_FILE_ARGS[$INDEX]}" \
+            -v NODES=${NODES},RANKS=${RANKS},CORES_PER_RANK=${CORES_PER_RANK},RANKS_PER_NODE=${RANKS_PER_NODE},CORES=${CORES},THREADS_PER_RANK=${THREADS_PER_RANK},PELEC_EXE=${PELEC_EXE},INPUT_FILE=${INPUT_FILE},INPUT_FILE_ARGS="${SERIALISED_INPUT_FILE_ARGS}" \
             ${EXTRA_ARGS} \
             ${OWD}/run-case-peregrine.sh)
    INDEX=$((INDEX+1))
