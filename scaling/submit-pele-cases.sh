@@ -145,4 +145,3 @@ for JOB in "${JOBS[@]}"; do
    INDEX=$((INDEX+1))
    printf "\n"
 done
-printf "\n"
