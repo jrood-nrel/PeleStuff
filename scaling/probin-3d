@@ -1,0 +1,11 @@
+&fortin
+  pamb = 1013250.d0  
+  phi_in = -.5d0
+  pertmag = .005d0
+  pmf_datafile = "PMF_CH4_1bar_300K_GRI_MixAvg.dat"
+/
+
+&tagging
+  max_ftracerr_lev = 4
+  ftracerr = 150.d-6
+/
