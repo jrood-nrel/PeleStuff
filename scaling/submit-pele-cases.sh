@@ -124,11 +124,6 @@ for JOB in "${JOBS[@]}"; do
    CORES_PER_RANK=$((${HYPERTHREADS} * ${CORES_PER_NODE} / ${RANKS_PER_NODE}))
    THREADS_PER_RANK=$((${CORES_PER_RANK} / ${HYPERCORES_PER_THREAD}))
 
-   printf "Creating directory for job ${INDEX} and copying files...\n"
-   THIS_JOB_DIR=${OWD}/${CASE_SET}/${JOB_NAME}-${INDEX}
-   cmd "mkdir ${THIS_JOB_DIR} && cd ${THIS_JOB_DIR}"
-   (set -x; cp ${OWD}/*.dat ${THIS_JOB_DIR}/ || true)
-
    # Check that exe and input file exist before submitting
    if [ ! -f "${PELEC_EXE}" ]; then
       printf "${PELEC_EXE} does not exist.\n"
@@ -138,6 +133,11 @@ for JOB in "${JOBS[@]}"; do
       printf "${INPUT_FILE} does not exist.\n"
       exit 1
    fi
+
+   printf "Creating directory for job ${INDEX} and copying files...\n"
+   THIS_JOB_DIR=${OWD}/${CASE_SET}/${JOB_NAME}-${INDEX}
+   cmd "mkdir ${THIS_JOB_DIR} && cd ${THIS_JOB_DIR}"
+   (set -x; cp ${OWD}/*.dat ${THIS_JOB_DIR}/ || true)
 
    printf "Submitting job ${INDEX}...\n"
    submit_job
