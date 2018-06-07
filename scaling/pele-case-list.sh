@@ -1,9 +1,10 @@
 #!/bin/bash
 
+OWD=$(pwd)
+
 # Basic job settings
 EMAIL="jon.rood@nrel.gov"
 COMPILER=intel
-MACHINE=peregrine # Add automatic logic for this
 TEST_RUN="FALSE"
 
 # Create list of jobs with varying parameters to submit

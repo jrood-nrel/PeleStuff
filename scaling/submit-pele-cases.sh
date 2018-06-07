@@ -51,6 +51,15 @@ submit_job() {
   fi
 }
 
+if [ "${NERSC_HOST}" == 'cori' ]; then
+   MACHINE='cori'
+elif [ "$(hostname -d)" == 'hpc.nrel.gov' ]; then
+   MACHINE='peregrine'
+else
+  printf "Can't detect machine.\n"
+  exit 1
+fi
+
 # Get job case list from external file
 source ${OWD}/pele-case-list.sh
 
