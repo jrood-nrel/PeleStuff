@@ -105,7 +105,7 @@ for JOB in "${JOBS[@]}"; do
       fi
       # Need to serialise the input file arguments because qsub can't
       # parse anything beyond a normal string when passing arguments
-      SERIALISED_INPUT_FILE_ARGS=$(printf "\0%s" "${INPUT_FILE_ARGS[$INDEX]}" | base64)
+      SERIALISED_INPUT_FILE_ARGS=$(printf "\0%s" "${INPUT_FILE_ARGS[$INDEX]}" | base64 --wrap=0)
    elif [ "${MACHINE}" == 'cori' ]; then
       ALLOCATION="m2860"
       # Cori CPU logic
