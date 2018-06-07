@@ -71,7 +71,7 @@ submit_job() {
 printf "Machine detected as ${MACHINE}.\n\n"
 
 # Put everything in a new directory labeled with a date
-CASE_SET="submit-pele-cases-$(date +%Y-%m-%d-%H-%M)"
+CASE_SET="pele-cases-$(date +%Y-%m-%d-%H-%M)"
 cmd "mkdir ${OWD}/${CASE_SET} && cd ${OWD}/${CASE_SET}"
 exec &> >(tee "${OWD}/${CASE_SET}/${CASE_SET}.log")
 
