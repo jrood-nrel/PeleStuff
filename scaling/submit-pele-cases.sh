@@ -74,6 +74,7 @@ printf "Machine detected as ${MACHINE}.\n\n"
 CASE_SET="pele-cases-$(date +%Y-%m-%d-%H-%M)"
 cmd "mkdir ${OWD}/${CASE_SET} && cd ${OWD}/${CASE_SET}"
 exec &> >(tee "${OWD}/${CASE_SET}/${CASE_SET}.log")
+printf "\n"
 
 # Display list of jobs that will be submitted
 printf "Submitting these job configurations:\n"
