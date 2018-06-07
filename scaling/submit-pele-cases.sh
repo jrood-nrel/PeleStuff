@@ -28,6 +28,7 @@ cmd() {
   eval "$@"
 }
 
+# Function for submitting job based on machine
 submit_job() {
   if [ "${MACHINE}" == 'peregrine' ]; then
      (set -x; qsub \
@@ -129,12 +130,14 @@ for JOB in "${JOBS[@]}"; do
    THREADS_PER_RANK=$((${CORES_PER_RANK} / ${HYPERCORES_PER_THREAD}))
 
    printf "Creating directory for job ${INDEX} and copying files...\n"
-   cmd "mkdir ${OWD}/${CASE_SET}/${JOB_NAME} && cd ${OWD}/${CASE_SET}/${JOB_NAME}"
-   (set -x; cp ${OWD}/*.dat ${OWD}/${CASE_SET}/${JOB_NAME}/ || true)
+   THIS_JOB_DIR=${OWD}/${CASE_SET}/${JOB_NAME}-${INDEX}
+   cmd "mkdir ${THIS_JOB_DIR} && cd ${THIS_JOB_DIR}"
+   (set -x; cp ${OWD}/*.dat ${THIS_JOB_DIR}/ || true)
+
    printf "Submitting job ${INDEX}...\n"
    submit_job
+
    INDEX=$((INDEX+1))
    printf "\n"
 done
-
 printf "\n"
