@@ -1,6 +1,8 @@
 #!/bin/bash -l
 
+# Stop on all errors
 set -e
+# Save original working directory
 OWD=$(pwd)
 
 # Basic job settings
@@ -13,14 +15,14 @@ TEST_RUN="FALSE"
 EXAMPLE_JOB='job_name:queue:cpu_type:exe_path:input_file:nodes:ranks_per_node:hypercores_per_thread:minutes'
 declare -a JOBS
 declare -a INPUT_FILE_ARGS
-JOBS[1]="pelec-scaling:short:haswell:${OWD}/PeleC3d.${COMPILER}.MPI.ex:${OWD}/input-3d:1:12:2:30"
+JOBS[1]="pelec-scaling:short:haswell:${OWD}/PeleC3d.${COMPILER}.MPI.ex:${OWD}/input-3d:1:12:2:40"
 INPUT_FILE_ARGS[1]='amr.n_cell=128 128 128'
-#JOBS[2]="pelec-scaling:short:haswell:${OWD}/PeleC3d.${COMPILER}.MPI.ex:${OWD}/input-3d:4:24:2:30"
-#INPUT_FILE_ARGS[2]='amr.n_cell=256 256 256'
-#JOBS[3]="pelec-scaling:batch-h:haswell:${OWD}/PeleC3d.${COMPILER}.MPI.ex:${OWD}/input-3d:32:24:2:1800"
-#INPUT_FILE_ARGS[3]='amr.n_cell=512 512 512'
-#JOBS[4]="pelec-scaling:batch-h:haswell:${OWD}/PeleC3d.${COMPILER}.MPI.ex:${OWD}/input-3d:256:24:2:1800"
-#INPUT_FILE_ARGS[4]='amr.n_cell=1024 1024 1024'
+JOBS[2]="pelec-scaling:short:haswell:${OWD}/PeleC3d.${COMPILER}.MPI.ex:${OWD}/input-3d:4:24:2:40"
+INPUT_FILE_ARGS[2]='amr.n_cell=256 256 256'
+JOBS[3]="pelec-scaling:batch-h:haswell:${OWD}/PeleC3d.${COMPILER}.MPI.ex:${OWD}/input-3d:32:24:2:40"
+INPUT_FILE_ARGS[3]='amr.n_cell=512 512 512'
+JOBS[4]="pelec-scaling:batch-h:haswell:${OWD}/PeleC3d.${COMPILER}.MPI.ex:${OWD}/input-3d:256:24:2:400"
+INPUT_FILE_ARGS[4]='amr.n_cell=1024 1024 1024'
 
 # Function for printing and executing commands
 cmd() {
@@ -134,6 +136,9 @@ for JOB in "${JOBS[@]}"; do
    THIS_JOB_DIR=${OWD}/${CASE_SET}/${JOB_NAME}-${INDEX}
    cmd "mkdir ${THIS_JOB_DIR} && cd ${THIS_JOB_DIR}"
    (set -x; cp ${OWD}/*.dat ${THIS_JOB_DIR}/ || true)
+
+   # Check that exe and input file exist before submitting
+   ls ${PELEC_EXE} && ls ${INPUT_FILE} > /dev/null 2>&1
 
    printf "Submitting job ${INDEX}...\n"
    submit_job
