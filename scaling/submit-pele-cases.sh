@@ -24,7 +24,7 @@ submit_job() {
               ${EXTRA_ARGS} \
               ${OWD}/run-pele-case.sh)
   elif [ "${MACHINE}" == 'cori' ]; then
-     # If we're testing, do a fake job submission to slurm, otherwise log this script's output
+     # If we're testing, do a fake job submission to slurm
      if [ "${TEST_RUN}" == 'TRUE' ]; then
         EXTRA_ARGS="--test-only"
      fi
