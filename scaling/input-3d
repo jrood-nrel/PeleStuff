@@ -5,9 +5,9 @@ max_step = 10
 # PROBLEM SIZE & GEOMETRY
 geometry.is_periodic = 1 1 0
 geometry.coord_sys   = 0  # 0 => cart, 1 => RZ  2=>spherical
-geometry.prob_lo     = 1.0        1.0       1.0
-geometry.prob_hi     = 6.0        6.0       6.0
-amr.n_cell           = 128        128       128
+geometry.prob_lo     = -0.5       -0.5      -0.5
+geometry.prob_hi     =  2.0        2.0       2.0
+amr.n_cell           =  128        128       128
 
 #pelec.Riemann    = 0     # 0: HLL,  1: JBB,  2: HLLC
 # >>>>>>>>>>>>>  BC FLAGS <<<<<<<<<<<<<<<<
