@@ -40,5 +40,17 @@ elif [ "${MACHINE}" == 'cori' ]; then
    cmd "export OMP_NUM_THREADS=${THREADS_PER_RANK}"
    cmd "export OMP_PLACES=threads"
    cmd "export OMP_PROC_BIND=spread"
-   cmd "srun -n ${RANKS} -c ${CORES_PER_RANK} --cpu_bind=cores ${PELEC_EXE} ${INPUT_FILE} ${INPUT_FILE_ARGS}"
+
+   if [ "${CPU_TYPE}" == 'knl' ]; then
+      cmd "module swap craype-haswell craype-mic-knl || true"
+   fi
+
+   if [ "${CPU_TYPE}" == 'knl' ] && ((NODES>156)); then
+      MY_EXE=/tmp/pelec.ex
+      cmd "sbcast -f -F2 -t 300 --compress=lz4 ${PELEC_EXE} ${MY_EXE}"
+   else
+      MY_EXE=${PELEC_EXE}
+   fi
+
+   cmd "srun -n ${RANKS} -c ${CORES_PER_RANK} --cpu_bind=${CPU_BIND} ${MY_EXE} ${INPUT_FILE} ${INPUT_FILE_ARGS}"
 fi

@@ -20,7 +20,7 @@ submit_job() {
               -m p \
               -M ${EMAIL} \
               -W umask=002 \
-              -v MACHINE=${MACHINE},COMPILER=${COMPILER},NODES=${NODES},RANKS=${RANKS},CORES_PER_RANK=${CORES_PER_RANK},RANKS_PER_NODE=${RANKS_PER_NODE},CORES=${CORES},THREADS_PER_RANK=${THREADS_PER_RANK},PELEC_EXE=${PELEC_EXE},INPUT_FILE=${INPUT_FILE},INPUT_FILE_ARGS="${SERIALISED_INPUT_FILE_ARGS}" \
+              -v MACHINE=${MACHINE},COMPILER=${COMPILER},NODES=${NODES},RANKS=${RANKS},CORES_PER_NODE=${CORES_PER_NODE},CORES_PER_RANK=${CORES_PER_RANK},RANKS_PER_NODE=${RANKS_PER_NODE},CORES=${CORES},THREADS_PER_RANK=${THREADS_PER_RANK},CPU_TYPE=${CPU_TYPE},PELEC_EXE=${PELEC_EXE},INPUT_FILE=${INPUT_FILE},INPUT_FILE_ARGS="${SERIALISED_INPUT_FILE_ARGS}" \
               ${EXTRA_ARGS} \
               ${OWD}/run-pele-case.sh)
   elif [ "${MACHINE}" == 'cori' ]; then
@@ -39,7 +39,7 @@ submit_job() {
               -t ${JOB_TIME} \
               --mail-user=${EMAIL} \
               --mail-type=NONE \
-              --export=MACHINE=${MACHINE},NODES=${NODES},RANKS=${RANKS},CORES_PER_RANK=${CORES_PER_RANK},CORES=${CORES},THREADS_PER_RANK=${THREADS_PER_RANK},PELEC_EXE="${PELEC_EXE}",INPUT_FILE="${INPUT_FILE}",INPUT_FILE_ARGS="${INPUT_FILE_ARGS[$INDEX]}" \
+              --export=MACHINE=${MACHINE},NODES=${NODES},RANKS=${RANKS},CORES_PER_NODE=${CORES_PER_NODE},CORES_PER_RANK=${CORES_PER_RANK},RANKS_PER_NODE=${RANKS_PER_NODE},CORES=${CORES},THREADS_PER_RANK=${THREADS_PER_RANK},CPU_BIND=${CPU_BIND},CPU_TYPE=${CPU_TYPE},PELEC_EXE=${PELEC_EXE},INPUT_FILE=${INPUT_FILE},INPUT_FILE_ARGS="${INPUT_FILE_ARGS[$INDEX]}" \
               ${KNL_CORE_SPECIALIZATION} \
               ${EXTRA_ARGS} \
               ${OWD}/run-pele-case.sh)
@@ -116,6 +116,11 @@ for JOB in "${JOBS[@]}"; do
       elif [ "${CPU_TYPE}" == 'haswell' ]; then
          CORES_PER_NODE=32
          HYPERTHREADS=2
+      fi
+      if ((RANKS_PER_NODE<=CORES_PER_NODE)); then
+         CPU_BIND=cores
+      else
+         CPU_BIND=threads
       fi
    fi
 
