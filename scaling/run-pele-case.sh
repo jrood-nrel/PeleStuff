@@ -10,6 +10,9 @@ cmd() {
 
 echo "Running with ${RANKS} ranks and ${THREADS_PER_RANK} threads on ${NODES} nodes with a total of ${CORES} cores..."
 
+DESERIALISED_POST_ARGS=$(printf "%s" "${POST_ARGS}" | base64 --decode --wrap=0)
+DESERIALISED_PRE_ARGS=$(printf "%s" "${PRE_ARGS}" | base64 --decode --wrap=0)
+
 if [ "${MACHINE}" == 'peregrine' ]; then
    cmd "module purge"
    cmd "module use /nopt/nrel/ecom/ecp/base/modules/gcc-6.2.0"
@@ -26,13 +29,11 @@ if [ "${MACHINE}" == 'peregrine' ]; then
    cmd "export OMP_PLACES=threads"
    cmd "export OMP_PROC_BIND=spread"
    
-   DESERIALISED_INPUT_FILE_ARGS=$(printf "%s" "${INPUT_FILE_ARGS}" | base64 --decode --wrap=0)
-   
    if [ "${COMPILER}" == 'gnu' ]; then
-      cmd "mpirun -np ${RANKS} --map-by ppr:${RANKS_PER_NODE}:node --bind-to core ${PELEC_EXE} ${INPUT_FILE} ${DESERIALISED_INPUT_FILE_ARGS}"
+      cmd "${DESERIALISED_PRE_ARGS} mpirun -np ${RANKS} --map-by ppr:${RANKS_PER_NODE}:node --bind-to core ${PELEC_EXE} ${INPUT_FILE} ${DESERIALISED_POST_ARGS}"
    elif [ "${COMPILER}" == 'intel' ]; then
       # Process binding should happen by default
-      cmd "mpirun -n ${RANKS} -ppn ${RANKS_PER_NODE} ${PELEC_EXE} ${INPUT_FILE} ${DESERIALISED_INPUT_FILE_ARGS}"
+      cmd "${DESERIALISED_PRE_ARGS} mpirun -n ${RANKS} -ppn ${RANKS_PER_NODE} ${PELEC_EXE} ${INPUT_FILE} ${DESERIALISED_POST_ARGS}"
    fi
 elif [ "${MACHINE}" == 'cori' ]; then
    cmd "module load ipm"
@@ -52,5 +53,5 @@ elif [ "${MACHINE}" == 'cori' ]; then
       MY_EXE=${PELEC_EXE}
    fi
 
-   cmd "srun -n ${RANKS} -c ${CORES_PER_RANK} --cpu_bind=${CPU_BIND} ${MY_EXE} ${INPUT_FILE} ${INPUT_FILE_ARGS}"
+   cmd "${DESERIALISED_PRE_ARGS} srun -n ${RANKS} -c ${CORES_PER_RANK} --cpu_bind=${CPU_BIND} ${MY_EXE} ${INPUT_FILE} ${DESERIALISED_POST_ARGS}"
 fi

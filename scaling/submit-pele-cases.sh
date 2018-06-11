@@ -20,7 +20,7 @@ submit_job() {
               -m p \
               -M ${EMAIL} \
               -W umask=002 \
-              -v MACHINE=${MACHINE},COMPILER=${COMPILER},NODES=${NODES},RANKS=${RANKS},CORES_PER_NODE=${CORES_PER_NODE},CORES_PER_RANK=${CORES_PER_RANK},RANKS_PER_NODE=${RANKS_PER_NODE},CORES=${CORES},THREADS_PER_RANK=${THREADS_PER_RANK},CPU_TYPE=${CPU_TYPE},PELEC_EXE=${PELEC_EXE},INPUT_FILE=${INPUT_FILE},INPUT_FILE_ARGS="${SERIALISED_INPUT_FILE_ARGS}" \
+              -v MACHINE=${MACHINE},COMPILER=${COMPILER},NODES=${NODES},RANKS=${RANKS},CORES_PER_NODE=${CORES_PER_NODE},CORES_PER_RANK=${CORES_PER_RANK},RANKS_PER_NODE=${RANKS_PER_NODE},CORES=${CORES},THREADS_PER_RANK=${THREADS_PER_RANK},CPU_TYPE=${CPU_TYPE},PELEC_EXE=${PELEC_EXE},INPUT_FILE=${INPUT_FILE},PRE_ARGS="${SERIALISED_PRE_ARGS}",POST_ARGS="${SERIALISED_POST_ARGS}" \
               ${EXTRA_ARGS} \
               ${OWD}/run-pele-case.sh)
   elif [ "${MACHINE}" == 'cori' ]; then
@@ -39,7 +39,7 @@ submit_job() {
               -t ${JOB_TIME} \
               --mail-user=${EMAIL} \
               --mail-type=NONE \
-              --export=MACHINE=${MACHINE},NODES=${NODES},RANKS=${RANKS},CORES_PER_NODE=${CORES_PER_NODE},CORES_PER_RANK=${CORES_PER_RANK},RANKS_PER_NODE=${RANKS_PER_NODE},CORES=${CORES},THREADS_PER_RANK=${THREADS_PER_RANK},CPU_BIND=${CPU_BIND},CPU_TYPE=${CPU_TYPE},PELEC_EXE=${PELEC_EXE},INPUT_FILE=${INPUT_FILE},INPUT_FILE_ARGS="${INPUT_FILE_ARGS[$INDEX]}" \
+              --export=MACHINE=${MACHINE},NODES=${NODES},RANKS=${RANKS},CORES_PER_NODE=${CORES_PER_NODE},CORES_PER_RANK=${CORES_PER_RANK},RANKS_PER_NODE=${RANKS_PER_NODE},CORES=${CORES},THREADS_PER_RANK=${THREADS_PER_RANK},CPU_BIND=${CPU_BIND},CPU_TYPE=${CPU_TYPE},PELEC_EXE=${PELEC_EXE},INPUT_FILE=${INPUT_FILE},PRE_ARGS="${SERIALISED_PRE_ARGS}",POST_ARGS="${SERIALISED_POST_ARGS}" \
               ${KNL_CORE_SPECIALIZATION} \
               ${EXTRA_ARGS} \
               ${OWD}/run-pele-case.sh)
@@ -76,7 +76,8 @@ printf " - ${EXAMPLE_JOB}\n\n"
 INDEX=1
 for JOB in "${JOBS[@]}"; do
    printf "${INDEX}: ${JOB}\n"
-   printf "     - ${INPUT_FILE_ARGS[$INDEX]}\n"
+   printf "     - PRE_ARGS: ${PRE_ARGS[$INDEX]}\n"
+   printf "     - POST_ARGS: ${POST_ARGS[$INDEX]}\n"
    INDEX=$((INDEX+1))
 done
 printf "\n"
@@ -103,9 +104,6 @@ for JOB in "${JOBS[@]}"; do
          CORES_PER_NODE=24
          HYPERTHREADS=2
       fi
-      # Need to serialise the input file arguments because qsub can't
-      # parse anything beyond a normal string when passing arguments
-      SERIALISED_INPUT_FILE_ARGS=$(printf "\0%s" "${INPUT_FILE_ARGS[$INDEX]}" | base64 --wrap=0)
    elif [ "${MACHINE}" == 'cori' ]; then
       ALLOCATION="m2860"
       # Cori CPU logic
@@ -123,6 +121,10 @@ for JOB in "${JOBS[@]}"; do
          CPU_BIND=threads
       fi
    fi
+
+   # Serializing pre and post arguments so we don't have worry about quoting, etc.
+   SERIALISED_PRE_ARGS=$(printf "\0%s" "${PRE_ARGS[$INDEX]}" | base64 --wrap=0)
+   SERIALISED_POST_ARGS=$(printf "\0%s" "${POST_ARGS[$INDEX]}" | base64 --wrap=0)
 
    RANKS=$((${NODES} * ${RANKS_PER_NODE}))
    CORES=$((${CORES_PER_NODE} * ${NODES}))
