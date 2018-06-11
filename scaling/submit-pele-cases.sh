@@ -93,8 +93,7 @@ for JOB in "${JOBS[@]}"; do
    INPUT_FILE=${PARAMETER[4]}
    NODES=${PARAMETER[5]}
    RANKS_PER_NODE=${PARAMETER[6]}
-   HYPERCORES_PER_THREAD=${PARAMETER[7]}
-   JOB_TIME=${PARAMETER[8]}
+   JOB_TIME=${PARAMETER[7]}
 
    if [ "${MACHINE}" == 'peregrine' ]; then
       JOB_TIME=$((${JOB_TIME} * 60))
@@ -127,9 +126,10 @@ for JOB in "${JOBS[@]}"; do
    SERIALISED_POST_ARGS=$(printf "\0%s" "${POST_ARGS[$INDEX]}" | base64 --wrap=0)
 
    RANKS=$((${NODES} * ${RANKS_PER_NODE}))
-   CORES=$((${CORES_PER_NODE} * ${NODES}))
    CORES_PER_RANK=$((${HYPERTHREADS} * ${CORES_PER_NODE} / ${RANKS_PER_NODE}))
+   HYPERCORES_PER_THREAD=2 # Don't use hyperthreading on haswell, but use two hyperthreads on KNL
    THREADS_PER_RANK=$((${CORES_PER_RANK} / ${HYPERCORES_PER_THREAD}))
+   CORES=$((${THREADS_PER_RANK} * ${RANKS}))
 
    # Check that exe and input file exist before submitting
    if [ ! -f "${PELEC_EXE}" ]; then
