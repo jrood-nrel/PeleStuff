@@ -30,12 +30,10 @@ if [ "${MACHINE}" == 'peregrine' ]; then
    cmd "export OMP_PROC_BIND=spread"
    
    if [ "${COMPILER}" == 'gnu' ]; then
-      cmd "${DESERIALISED_PRE_ARGS} mpirun -np ${RANKS} --map-by ppr:${RANKS_PER_NODE}:node --bind-to core ${PELEC_EXE} ${INPUT_FILE} ${DESERIALISED_POST_ARGS}"
+      cmd "${DESERIALISED_PRE_ARGS} mpirun -x OMP_NUM_THREADS -x OMP_PLACES -x OMP_PROC_BIND -np ${RANKS} --map-by ppr:${RANKS_PER_NODE}:node --bind-to core ${PELEC_EXE} ${INPUT_FILE} ${DESERIALISED_POST_ARGS}"
    elif [ "${COMPILER}" == 'intel' ]; then
       cmd "mkdir -p /scratch/${USER}/.tmp"
       cmd "cat ${PBS_NODEFILE} > /scratch/${USER}/.tmp/node_list"
-      cmd "export I_MPI_FABRICS_LIST=ofi,tcp"
-      cmd "export I_MPI_PIN_DOMAIN=omp"
       cmd "${DESERIALISED_PRE_ARGS} mpirun -machine /scratch/${USER}/.tmp/node_list -n ${RANKS} -ppn ${RANKS_PER_NODE} ${PELEC_EXE} ${INPUT_FILE} ${DESERIALISED_POST_ARGS}"
    fi
 elif [ "${MACHINE}" == 'cori' ]; then
