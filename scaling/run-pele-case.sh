@@ -34,8 +34,7 @@ if [ "${MACHINE}" == 'peregrine' ]; then
    elif [ "${COMPILER}" == 'intel' ]; then
       cmd "mkdir -p /scratch/${USER}/.tmp"
       cmd "cat ${PBS_NODEFILE} > /scratch/${USER}/.tmp/node_list"
-      cmd "export I_MPI_FABRICS_LIST=ofi"
-      cmd "export I_MPI_FALLBACK=0"
+      cmd "export I_MPI_FABRICS_LIST=ofi,tcp"
       cmd "export I_MPI_PIN_DOMAIN=omp"
       cmd "${DESERIALISED_PRE_ARGS} mpirun -machine /scratch/${USER}/.tmp/node_list -n ${RANKS} -ppn ${RANKS_PER_NODE} ${PELEC_EXE} ${INPUT_FILE} ${DESERIALISED_POST_ARGS}"
    fi
