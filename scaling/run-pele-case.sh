@@ -26,18 +26,24 @@ if [ "${MACHINE}" == 'peregrine' ]; then
    fi
    
    cmd "export OMP_NUM_THREADS=${THREADS_PER_RANK}"
-   cmd "export OMP_PLACES=threads"
-   cmd "export OMP_PROC_BIND=spread"
    
    if [ "${COMPILER}" == 'gnu' ]; then
-      cmd "${DESERIALISED_PRE_ARGS} mpirun -x OMP_NUM_THREADS -x OMP_PLACES -x OMP_PROC_BIND -np ${RANKS} --map-by ppr:${RANKS_PER_NODE}:node --bind-to core ${PELEC_EXE} ${INPUT_FILE} ${DESERIALISED_POST_ARGS}"
+      #cmd "export OMP_PLACES=threads"
+      #cmd "export OMP_PROC_BIND=spread"
+      cmd "${DESERIALISED_PRE_ARGS} mpirun -np ${RANKS} --map-by ppr:${RANKS_PER_NODE}:node -x OMP_NUM_THREADS ${PELEC_EXE} ${INPUT_FILE} ${DESERIALISED_POST_ARGS}"
    elif [ "${COMPILER}" == 'intel' ]; then
-      cmd "mkdir -p /scratch/${USER}/.tmp"
-      cmd "cat ${PBS_NODEFILE} > /scratch/${USER}/.tmp/node_list"
-      cmd "export I_MPI_FABRICS=shm:dapl"
+      MY_TMP_DIR=/scratch/${USER}/.tmp
+      NODE_LIST=${MY_TMP_DIR}/node_list.${PBS_JOBID}
+      cmd "mkdir -p ${MY_TMP_DIR}"
+      cmd "cat ${PBS_NODEFILE} > ${NODE_LIST}"
+      cmd "export I_MPI_DEBUG=5"
+      cmd "export I_MPI_FABRIC_LIST=ofa,dapl"
+      cmd "export I_MPI_FABRICS=shm:ofa"
       cmd "export I_MPI_FALLBACK=0"
-      #cmd "export I_MPI_PIN_DOMAIN=omp"
-      cmd "${DESERIALISED_PRE_ARGS} mpirun -machine /scratch/${USER}/.tmp/node_list -n ${RANKS} -ppn ${RANKS_PER_NODE} ${PELEC_EXE} ${INPUT_FILE} ${DESERIALISED_POST_ARGS}"
+      #cmd "export I_MPI_PIN=0"
+      #cmd "export I_MPI_PIN_DOMAIN=auto"
+      #cmd "export KMP_AFFINITY=compact,granularity=thread"
+      cmd "${DESERIALISED_PRE_ARGS} mpirun -genvall -f ${NODE_LIST} -n ${RANKS} -ppn ${RANKS_PER_NODE} ${PELEC_EXE} ${INPUT_FILE} ${DESERIALISED_POST_ARGS}"
    fi
 elif [ "${MACHINE}" == 'cori' ]; then
    cmd "module load ipm"
