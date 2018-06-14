@@ -28,9 +28,7 @@ if [ "${MACHINE}" == 'peregrine' ]; then
    cmd "export OMP_NUM_THREADS=${THREADS_PER_RANK}"
    
    if [ "${COMPILER}" == 'gnu' ]; then
-      #cmd "export OMP_PLACES=threads"
-      #cmd "export OMP_PROC_BIND=spread"
-      cmd "${DESERIALISED_PRE_ARGS} mpirun -np ${RANKS} --map-by ppr:${RANKS_PER_NODE}:node -x OMP_NUM_THREADS ${PELEC_EXE} ${INPUT_FILE} ${DESERIALISED_POST_ARGS}"
+      cmd "${DESERIALISED_PRE_ARGS} mpirun -np ${RANKS} --map-by ppr:${RANKS_PER_NODE}:node:pe=${THREADS_PER_RANK} -bind-to core -x OMP_NUM_THREADS ${PELEC_EXE} ${INPUT_FILE} ${DESERIALISED_POST_ARGS}"
    elif [ "${COMPILER}" == 'intel' ]; then
       MY_TMP_DIR=/scratch/${USER}/.tmp
       NODE_LIST=${MY_TMP_DIR}/node_list.${PBS_JOBID}
