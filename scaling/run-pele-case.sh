@@ -34,13 +34,13 @@ if [ "${MACHINE}" == 'peregrine' ]; then
       NODE_LIST=${MY_TMP_DIR}/node_list.${PBS_JOBID}
       cmd "mkdir -p ${MY_TMP_DIR}"
       cmd "cat ${PBS_NODEFILE} > ${NODE_LIST}"
-      cmd "export I_MPI_DEBUG=5"
+      #cmd "export I_MPI_DEBUG=5"
       cmd "export I_MPI_FABRIC_LIST=ofa,dapl"
       cmd "export I_MPI_FABRICS=shm:ofa"
       cmd "export I_MPI_FALLBACK=0"
-      #cmd "export I_MPI_PIN=0"
-      #cmd "export I_MPI_PIN_DOMAIN=auto"
-      #cmd "export KMP_AFFINITY=compact,granularity=thread"
+      cmd "export I_MPI_PIN=1"
+      cmd "export I_MPI_PIN_DOMAIN=omp"
+      cmd "export KMP_AFFINITY=compact,granularity=core"
       cmd "${DESERIALISED_PRE_ARGS} mpirun -genvall -f ${NODE_LIST} -n ${RANKS} -ppn ${RANKS_PER_NODE} ${PELEC_EXE} ${INPUT_FILE} ${DESERIALISED_POST_ARGS}"
    fi
 elif [ "${MACHINE}" == 'cori' ]; then
