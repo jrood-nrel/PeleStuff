@@ -4,7 +4,7 @@ OWD=$(pwd)
 
 # Basic job settings
 EMAIL="jon.rood@nrel.gov"
-COMPILER=gnu
+COMPILER=intel
 TEST_RUN="FALSE" # Only works for Slurm
 
 # Create list of jobs with varying parameters to submit
@@ -42,7 +42,7 @@ IDX=0
 #JOBS[((IDX++))]="pelec-scaling:regular:haswell:${OWD}/PeleC3d.${COMPILER}.haswell.MPI.ex:${OWD}/input-3d:256:32:30"; PRE_ARGS[$IDX]=""; POST_ARGS[$IDX]="amr.probin_file=${OWD}/probin-3d amr.n_cell=1024 1024 1024"
 
 #Peregrine Haswell
-JOBS[((IDX++))]="pelec-scaling:batch-h:haswell:${OWD}/PeleC3d.${COMPILER}.MPI.OMP.ex:${OWD}/input-3d:8:6:600"; PRE_ARGS[$IDX]=""; POST_ARGS[$IDX]="amr.probin_file=${OWD}/probin-3d amr.n_cell=256 256 256 geometry.prob_lo=-1.0 -1.0 -1.0 geometry.prob_hi=4.0 4.0 4.0"
+JOBS[((IDX++))]="pelec-scaling:batch-h:haswell:${OWD}/PeleC3d.${COMPILER}.MPI.OMP.ex:${OWD}/input-3d:2:6:40"; PRE_ARGS[$IDX]=""; POST_ARGS[$IDX]="amr.probin_file=${OWD}/probin-3d amr.n_cell=160 160 160 geometry.prob_lo=-0.625 -0.625 -0.625 geometry.prob_hi=2.5 2.5 2.5"
 #JOBS[((IDX++))]="pelec-scaling:short:haswell:${OWD}/PeleC3d.${COMPILER}.MPI.OMP.ex:${OWD}/input-3d:1:6:40"; PRE_ARGS[$IDX]=""; POST_ARGS[$IDX]="amr.probin_file=${OWD}/probin-3d amr.n_cell=160 160 160 geometry.prob_lo=-0.625 -0.625 -0.625 geometry.prob_hi=2.5 2.5 2.5"
 #JOBS[((IDX++))]="pelec-scaling:short:haswell:${OWD}/PeleC3d.${COMPILER}.MPI.OMP.ex:${OWD}/input-3d:4:6:40"; PRE_ARGS[$IDX]=""; POST_ARGS[$IDX]="amr.probin_file=${OWD}/probin-3d amr.n_cell=256 256 256 geometry.prob_lo=-1.0 -1.0 -1.0 geometry.prob_hi=4.0 4.0 4.0"
 #JOBS[((IDX++))]="pelec-scaling:batch-h:haswell:${OWD}/PeleC3d.${COMPILER}.MPI.OMP.ex:${OWD}/input-3d:32:6:40"; PRE_ARGS[$IDX]=""; POST_ARGS[$IDX]="amr.probin_file=${OWD}/probin-3d amr.n_cell=512 512 512 geometry.prob_lo=-2.0 -2.0 -2.0 geometry.prob_hi=8.0 8.0 8.0"
