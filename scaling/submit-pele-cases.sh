@@ -8,10 +8,11 @@ cmd() {
 
 # Function for submitting job based on machine
 submit_job() {
+  THIS_JOB_NAME=${JOB_NAME}-${INDEX}
   if [ "${MACHINE}" == 'peregrine' ]; then
      (set -x; qsub \
               -A ${ALLOCATION} \
-              -N ${JOB_NAME}-${INDEX} \
+              -N ${THIS_JOB_NAME} \
               -q ${QUEUE} \
               -l nodes=${NODES}:ppn=${CORES_PER_NODE} \
               -l walltime=${JOB_TIME} \
@@ -20,7 +21,7 @@ submit_job() {
               -m p \
               -M ${EMAIL} \
               -W umask=002 \
-              -v MACHINE=${MACHINE},COMPILER=${COMPILER},NODES=${NODES},RANKS=${RANKS},CORES_PER_NODE=${CORES_PER_NODE},CORES_PER_RANK=${CORES_PER_RANK},RANKS_PER_NODE=${RANKS_PER_NODE},CORES=${CORES},THREADS_PER_RANK=${THREADS_PER_RANK},CPU_TYPE=${CPU_TYPE},PELEC_EXE=${PELEC_EXE},INPUT_FILE=${INPUT_FILE},PRE_ARGS="${SERIALISED_PRE_ARGS}",POST_ARGS="${SERIALISED_POST_ARGS}" \
+              -v THIS_JOB_DIR=${THIS_JOB_DIR},THIS_JOB_NAME=${THIS_JOB_NAME},MACHINE=${MACHINE},COMPILER=${COMPILER},NODES=${NODES},RANKS=${RANKS},CORES_PER_NODE=${CORES_PER_NODE},CORES_PER_RANK=${CORES_PER_RANK},RANKS_PER_NODE=${RANKS_PER_NODE},CORES=${CORES},THREADS_PER_RANK=${THREADS_PER_RANK},CPU_TYPE=${CPU_TYPE},PELEC_EXE=${PELEC_EXE},INPUT_FILE=${INPUT_FILE},PRE_ARGS="${SERIALISED_PRE_ARGS}",POST_ARGS="${SERIALISED_POST_ARGS}" \
               ${EXTRA_ARGS} \
               ${OWD}/run-pele-case.sh)
   elif [ "${MACHINE}" == 'cori' ]; then
@@ -32,14 +33,14 @@ submit_job() {
               -A ${ALLOCATION} \
               -L SCRATCH \
               -C ${CPU_TYPE} \
-              -J ${JOB_NAME}-${INDEX} \
+              -J ${THIS_JOB_NAME} \
               -o %x.o%j \
               -q ${QUEUE} \
               -N ${NODES} \
               -t ${JOB_TIME} \
               --mail-user=${EMAIL} \
               --mail-type=NONE \
-              --export=MACHINE=${MACHINE},NODES=${NODES},RANKS=${RANKS},CORES_PER_NODE=${CORES_PER_NODE},CORES_PER_RANK=${CORES_PER_RANK},RANKS_PER_NODE=${RANKS_PER_NODE},CORES=${CORES},THREADS_PER_RANK=${THREADS_PER_RANK},CPU_BIND=${CPU_BIND},CPU_TYPE=${CPU_TYPE},PELEC_EXE=${PELEC_EXE},INPUT_FILE=${INPUT_FILE},PRE_ARGS="${SERIALISED_PRE_ARGS}",POST_ARGS="${SERIALISED_POST_ARGS}" \
+              --export=THIS_JOB_DIR=${THIS_JOB_DIR},THIS_JOB_NAME=${THIS_JOB_NAME},MACHINE=${MACHINE},NODES=${NODES},RANKS=${RANKS},CORES_PER_NODE=${CORES_PER_NODE},CORES_PER_RANK=${CORES_PER_RANK},RANKS_PER_NODE=${RANKS_PER_NODE},CORES=${CORES},THREADS_PER_RANK=${THREADS_PER_RANK},CPU_BIND=${CPU_BIND},CPU_TYPE=${CPU_TYPE},PELEC_EXE=${PELEC_EXE},INPUT_FILE=${INPUT_FILE},PRE_ARGS="${SERIALISED_PRE_ARGS}",POST_ARGS="${SERIALISED_POST_ARGS}" \
               ${KNL_CORE_SPECIALIZATION} \
               ${EXTRA_ARGS} \
               ${OWD}/run-pele-case.sh)

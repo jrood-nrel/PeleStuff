@@ -1,5 +1,8 @@
 #!/bin/bash -l
 
+# #DW jobdw capacity=500GB access_mode=striped type=scratch
+# #DW stage_out source=$DW_JOB_STRIPED/$THIS_JOB_NAME destination=$THIS_JOB_DIR/output type=directory
+
 set -e
 
 # Function for printing and executing commands
@@ -61,5 +64,8 @@ elif [ "${MACHINE}" == 'cori' ]; then
       MY_EXE=${PELEC_EXE}
    fi
 
+   # Without burst buffer
    cmd "${DESERIALISED_PRE_ARGS} srun -n ${RANKS} -c ${CORES_PER_RANK} --cpu_bind=${CPU_BIND} ${MY_EXE} ${INPUT_FILE} ${DESERIALISED_POST_ARGS}"
+   # With burst buffer
+   #cmd "${DESERIALISED_PRE_ARGS} srun -n ${RANKS} -c ${CORES_PER_RANK} --cpu_bind=${CPU_BIND} ${MY_EXE} ${INPUT_FILE} ${DESERIALISED_POST_ARGS} amr.plot_file=${DW_JOB_STRIPED}/${THIS_JOB_NAME}/plt amr.check_file=${DW_JOB_STRIPED}/${THIS_JOB_NAME}/chk"
 fi
