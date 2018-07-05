@@ -43,6 +43,7 @@ IDX=0
 #JOBS[((IDX++))]="pelec-scaling:debug:knl:${OWD}/PeleC3d.${COMPILER}.mic-knl.MPI.OMP.ex:${OWD}/input-3d:32:32:30"; PRE_ARGS[$IDX]=""; POST_ARGS[$IDX]="amr.probin_file=${OWD}/probin-3d amr.n_cell=512 512 512 geometry.prob_lo=-2.0 -2.0 -2.0 geometry.prob_hi=8.0 8.0 8.0"
 #JOBS[((IDX++))]="pelec-scaling:debug:knl:${OWD}/PeleC3d.${COMPILER}.mic-knl.MPI.OMP.ex:${OWD}/input-3d:256:32:30": PRE_ARGS[$IDX]=""; POST_ARGS[$IDX]="amr.probin_file=${OWD}/probin-3d amr.n_cell=1024 1024 1024 geometry.prob_lo=-4.0 -4.0 -4.0 geometry.prob_hi=16.0 16.0 16.0"
 #JOBS[((IDX++))]="pelec-scaling:regular:knl:${OWD}/PeleC3d.${COMPILER}.mic-knl.MPI.OMP.ex:${OWD}/input-3d:2048:32:40"; PRE_ARGS[$IDX]=""; POST_ARGS[$IDX]="amr.probin_file=${OWD}/probin-3d amr.n_cell=2048 2048 2048 geometry.prob_lo=-8.0 -8.0 -8.0 geometry.prob_hi=32.0 32.0 32.0"
+#JOBS[((IDX++))]="pelec-scaling:regular:knl:${OWD}/PeleC3d.${COMPILER}.mic-knl.MPI.OMP.ex:${OWD}/input-3d:8192:32:80"; PRE_ARGS[$IDX]=""; POST_ARGS[$IDX]="amr.probin_file=${OWD}/probin-3d amr.n_cell=3250 3250 3250 geometry.prob_lo=-12.6953125 -12.6953125 -12.6953125 geometry.prob_hi=50.78125 50.78125 50.78125"
 
 #Example Cori Haswell Weak Scaling Study
 #JOBS[((IDX++))]="pelec-scaling:debug:haswell:${OWD}/PeleC3d.${COMPILER}.haswell.MPI.ex:${OWD}/input-3d:1:32:30"; PRE_ARGS[$IDX]=""; POST_ARGS[$IDX]="amr.probin_file=${OWD}/probin-3d amr.n_cell=160 160 160 geometry.prob_lo=-0.625 -0.625 -0.625 geometry.prob_hi=2.5 2.5 2.5"
