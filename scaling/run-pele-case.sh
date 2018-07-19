@@ -20,10 +20,10 @@ if [ "${MACHINE}" == 'peregrine' ]; then
    cmd "module purge"
    cmd "module use /nopt/nrel/ecom/ecp/base/modules/gcc-6.2.0"
    cmd "module load gcc/6.2.0"
-   cmd "module load git/2.17.0"
-   cmd "module load python/2.7.14"
+   cmd "module load git"
+   cmd "module load python"
    if [ "${COMPILER}" == 'gnu' ]; then
-      cmd "module load openmpi/1.10.4"
+      cmd "module load openmpi"
    elif [ "${COMPILER}" == 'intel' ]; then
       cmd "module load intel-parallel-studio/cluster.2018.1"
    fi
