@@ -1,5 +1,6 @@
 #!/usr/local/bin/python3
 import pandas as pd
+import numpy as np
 import matplotlib.pyplot as plt
 
 #Plot memory usage with data collected from ps
@@ -25,8 +26,10 @@ for index, row in data.iterrows():
    mem_sum += row['mem']
 total_mem.append(0)
 elapsed_time.append(runtime)
+total_mem = np.asarray(total_mem)
+total_mem = total_mem/1024/1024
 plt.plot(elapsed_time, total_mem)
 plt.xlabel("Elapsed Run Time (seconds)")
-plt.ylabel("Memory Usage (MB)")
+plt.ylabel("Memory Usage (GB)")
 plt.title(title)
 plt.show()
