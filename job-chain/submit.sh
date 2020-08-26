@@ -1,6 +1,6 @@
 #!/bin/bash -l
 
-#SBATCH --job-name=piston-bowl-0
+#SBATCH --job-name=piston-bowl-1
 #SBATCH --account=exact
 #SBATCH --nodes=4
 #SBATCH --time=4:00:00
@@ -14,20 +14,16 @@ cmd() {
 
 JOB_CHAIN_NAME="piston-bowl"
 THIS_SCRIPT_NAME="submit.sh"
-INDEX_MIN=0
+INDEX_MIN=1
 INDEX_MAX=5
 
 : ${INDEX:=${INDEX_MIN}}
 NEXT_INDEX=$((INDEX+1))
 
-if ((INDEX==INDEX_MIN)); then
-  NEXT_JOB=$(sbatch --job-name=${JOB_CHAIN_NAME}-${NEXT_INDEX} --export=ALL,INDEX=${NEXT_INDEX} ${THIS_SCRIPT_NAME} | awk '{print $4}')
-  echo "Submitted ${NEXT_JOB}"
-elif ((INDEX>INDEX_MIN && INDEX<INDEX_MAX)); then
+if ((INDEX>=INDEX_MIN && INDEX<INDEX_MAX)); then
   NEXT_JOB=$(sbatch --job-name=${JOB_CHAIN_NAME}-${NEXT_INDEX} --export=ALL,INDEX=${NEXT_INDEX} --dependency=afterany:${SLURM_JOB_ID} ${THIS_SCRIPT_NAME} | awk '{print $4}')
+  echo "Job ${INDEX} of ${INDEX_MAX}"
   echo "Submitted ${NEXT_JOB} depending on termination of ${SLURM_JOB_ID}"
-else
-  echo "Last job in job chain"
 fi
 
 # Do stuff based on first or subsequent step
