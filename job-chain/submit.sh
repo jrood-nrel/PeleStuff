@@ -2,9 +2,9 @@
 
 #SBATCH --job-name=piston-bowl-0
 #SBATCH --account=exact
-#SBATCH --nodes=2
-#SBATCH --time=0:02:00
-#SBATCH --partition=debug
+#SBATCH --nodes=4
+#SBATCH --time=4:00:00
+#SBATCH --partition=short
 #SBATCH -o %x.o%j
 
 cmd() {
@@ -21,10 +21,10 @@ INDEX_MAX=5
 NEXT_INDEX=$((INDEX+1))
 
 if ((INDEX==INDEX_MIN)); then
-  NEXT_JOB=$(sbatch -J ${JOB_CHAIN_NAME}-${NEXT_INDEX} --export=ALL,INDEX=${NEXT_INDEX} ${THIS_SCRIPT_NAME} | awk '{print $4}')
+  NEXT_JOB=$(sbatch --job-name=${JOB_CHAIN_NAME}-${NEXT_INDEX} --export=ALL,INDEX=${NEXT_INDEX} ${THIS_SCRIPT_NAME} | awk '{print $4}')
   echo "Submitted ${NEXT_JOB}"
 elif ((INDEX>INDEX_MIN && INDEX<INDEX_MAX)); then
-  NEXT_JOB=$(sbatch -J ${JOB_CHAIN_NAME}-${NEXT_INDEX} --export=ALL,INDEX=${NEXT_INDEX} -d afterany:${SLURM_JOB_ID} ${THIS_SCRIPT_NAME} | awk '{print $4}')
+  NEXT_JOB=$(sbatch --job-name=${JOB_CHAIN_NAME}-${NEXT_INDEX} --export=ALL,INDEX=${NEXT_INDEX} --dependency=afterany:${SLURM_JOB_ID} ${THIS_SCRIPT_NAME} | awk '{print $4}')
   echo "Submitted ${NEXT_JOB} depending on termination of ${SLURM_JOB_ID}"
 else
   echo "Last job in job chain"
@@ -41,4 +41,4 @@ fi
 # Do common stuff
 cmd "export LD_LIBRARY_PATH=${HOME}/combustion/PeleC/Submodules/PelePhysics/ThirdParty/INSTALL/gcc/lib:${LD_LIBRARY_PATH}"
 cmd "module load mpt"
-cmd "mpirun -n 72 ./PeleC3d.gnu.MPI.ex.sundials inputs.3d ${RESTART_STRING}"
+cmd "mpirun -n 144 ./PeleC3d.gnu.MPI.ex inputs.3d ${RESTART_STRING}"
